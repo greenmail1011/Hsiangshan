@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>香山國小分組系統</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F1F6FC; --surface:#FFFFFF; --surface-2:#F3F7FC; --ink:#15233A; --muted:#5A6C82; --faint:#8A9AAD;
+  --line:#DCE5EF; --line-strong:#C5D2E0;
+  --accent:#2159E8; --accent-ink:#FFFFFF; --accent-soft:#E4ECFE;
+  --plus:#0E8C47; --plus-soft:#DDF4E6; --minus:#D23B31; --minus-soft:#FDE6E3;
+  --t1:#EF4B40; --t2:#2F6FF0; --t3:#1BA35F; --t4:#F5B82A; --t5:#9255E0; --t6:#10AAAA; --t7:#EC5C9F; --t8:#607389;
+  --t1-ink:#fff; --t2-ink:#fff; --t3-ink:#fff; --t4-ink:#2A1E00; --t5-ink:#fff; --t6-ink:#fff; --t7-ink:#fff; --t8-ink:#fff;
+  --scrim:rgba(21,35,58,.38);
+  --shadow:0 1px 2px rgba(21,35,58,.05),0 10px 24px -14px rgba(33,89,232,.25);
+  --f-ui:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-num:"Barlow Condensed","Noto Sans TC","PingFang TC",system-ui,sans-serif;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+.banner{display:flex;align-items:flex-start;gap:10px;background:#FFF6DA;border:1px solid #F1D27A;color:#5C4300;border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:14px}
+.banner b{font-weight:700}
+.userbox{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+.userbox button{color:var(--accent);font-weight:700;padding:4px 6px;border-radius:6px}
+.userbox button:hover{background:var(--accent-soft)}
+.login{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:16px;background:var(--bg)}
+.login .card{width:min(420px,100%);background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:28px 24px;text-align:center;box-shadow:var(--shadow);display:grid;gap:14px;justify-items:center}
+.login h2{margin:0;font-size:20px}
+.login p{margin:0;color:var(--muted)}
+.login .err{color:var(--minus);font-size:13.5px;min-height:1.2em}
+.file-btn{position:relative;overflow:hidden}
+.file-btn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.5}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.45}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input,textarea{font:inherit;color:var(--ink)}
+.num,.tnum{font-variant-numeric:tabular-nums}
+
+.wrap{max-width:1200px;margin:0 auto;padding-inline:20px;padding-block:20px 72px}
+@media (max-width:480px){.wrap{padding-inline:16px}}
+
+/* header */
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:12px;margin-right:auto;min-width:0}
+.mark{width:42px;height:42px;flex:none;color:var(--ink)}
+.eyebrow{margin:0;font-size:12px;letter-spacing:.14em;color:var(--muted);font-weight:500}
+h1{margin:0;font-size:24px;line-height:1.2;font-weight:900;letter-spacing:.03em;text-wrap:balance}
+.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);padding:4px;border-radius:12px}
+.tabs button{padding:8px 16px;border-radius:8px;font-weight:700;color:var(--muted);font-size:15px}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.sync{margin:0;display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);white-space:nowrap}
+.sync .dot{width:8px;height:8px;border-radius:50%;background:var(--faint)}
+.sync[data-state="ok"] .dot{background:var(--plus)}
+.sync[data-state="saving"] .dot{background:var(--t4);animation:pulse 1s ease-in-out infinite}
+.sync[data-state="error"] .dot{background:var(--minus)}
+.sync[data-state="local"] .dot{background:var(--t4)}
+@keyframes pulse{50%{opacity:.3}}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:40px;padding:0 16px;border-radius:10px;border:1px solid var(--line-strong);background:var(--surface);font-weight:700;font-size:14px;white-space:nowrap}
+.btn:hover:not(:disabled){border-color:var(--faint)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover:not(:disabled){filter:brightness(1.08)}
+.btn.sm{height:32px;padding:0 12px;font-size:13px;border-radius:8px}
+.btn.warn{color:var(--minus)}
+.btn.warn-solid{background:var(--minus);border-color:var(--minus);color:#fff}
+
+/* controls */
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:14px 28px;padding:12px 16px;background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:16px}
+.ctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.lbl{font-size:13px;color:var(--muted);font-weight:500;letter-spacing:.06em}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--line-strong);border-radius:10px;overflow:hidden;background:var(--surface)}
+.stepper button{width:40px;height:40px;font-size:22px;line-height:1;color:var(--ink)}
+.stepper button:hover:not(:disabled){background:var(--surface-2)}
+.stepper output{min-width:46px;text-align:center;font-family:var(--f-num);font-size:28px;font-weight:700;line-height:40px;border-inline:1px solid var(--line);font-variant-numeric:tabular-nums}
+.hint{font-size:13px;color:var(--muted)}
+.seg{display:inline-flex;padding:3px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;gap:2px;flex-wrap:wrap}
+.seg button{padding:6px 12px;border-radius:7px;font-size:14px;font-weight:500;color:var(--muted)}
+.seg button[aria-checked="true"]{background:var(--surface);color:var(--ink);font-weight:700;box-shadow:0 1px 2px rgba(18,32,51,.12)}
+#regroup{margin-left:auto}
+@media (max-width:640px){#regroup{margin-left:0;width:100%}}
+
+/* board */
+.groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:14px;align-items:start}
+.group{--tc:var(--muted);--tc-ink:#fff;background:linear-gradient(to bottom,color-mix(in srgb,var(--tc) 11%,var(--surface)) 0,var(--surface) 110px);background-color:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);transition:border-color .15s,background-color .15s}
+.group.over{border-color:var(--tc);background:color-mix(in srgb,var(--tc) 9%,var(--surface))}
+.g-head{display:flex;align-items:center;gap:8px;padding:12px 12px 0}
+.bib{width:34px;height:34px;flex:none;border-radius:9px;background:var(--tc);color:var(--tc-ink);display:grid;place-items:center;font-family:var(--f-num);font-weight:700;font-size:22px;line-height:1}
+.bib.sm{width:26px;height:26px;font-size:17px;border-radius:7px}
+.bib.xs{width:20px;height:20px;font-size:14px;border-radius:5px}
+.gname{flex:1;min-width:0;border:1px solid transparent;background:transparent;font-size:17px;font-weight:700;padding:4px 6px;border-radius:7px}
+.gname::placeholder{color:var(--ink);opacity:1}
+.gname:hover{border-color:var(--line)}
+.gname:focus{border-color:var(--accent);background:var(--surface);outline:none}
+.gtitle{flex:1;margin:0;font-size:16px;font-weight:700;padding-left:4px}
+.count{font-size:13px;color:var(--muted);white-space:nowrap}
+.g-score{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;padding:6px 14px 10px}
+.g-score .total{font-family:var(--f-num);font-size:40px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.unit{font-size:13px;color:var(--muted)}
+.today{font-size:12px;font-weight:700;color:var(--plus);background:var(--plus-soft);padding:2px 8px;border-radius:999px;white-space:nowrap}
+.today.neg{color:var(--minus);background:var(--minus-soft)}
+.g-score .btn{margin-left:auto;align-self:center}
+.members{list-style:none;margin:0;padding:0 10px 12px;display:grid;gap:6px}
+.members .empty{grid-column:1/-1;border:1.5px dashed var(--line-strong);border-radius:10px;padding:14px;text-align:center;color:var(--muted);font-size:13px}
+
+.chip{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:6px;padding:3px 4px 3px 0;background:var(--surface-2);border:1px solid transparent;border-radius:10px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+.chip:hover{border-color:var(--line)}
+.chip-main{display:flex;align-items:baseline;flex-wrap:wrap;gap:0 8px;text-align:left;padding:7px 4px 7px 12px;min-width:0;cursor:grab;border-radius:8px}
+.nm{font-size:16px;font-weight:700;letter-spacing:.02em}
+.cls{font-size:12.5px;color:var(--muted)}
+.en{font-family:var(--f-num);font-size:16px;font-weight:600;color:var(--accent);letter-spacing:.03em;line-height:1.2}
+.namebtn + .en,.who .en{margin-left:6px}
+.sh-head h2 .en{font-size:22px;margin-left:8px}
+.pts{font-family:var(--f-num);font-size:23px;font-weight:700;min-width:2.2ch;text-align:right;font-variant-numeric:tabular-nums;display:inline-block}
+.pts.bump{animation:bump .55s ease-out}
+.pts.bump-neg{animation:bumpneg .55s ease-out}
+@keyframes bump{35%{transform:scale(1.4);color:var(--plus)}}
+@keyframes bumpneg{35%{transform:scale(1.25);color:var(--minus)}}
+.chip-plus{width:38px;height:36px;border-radius:8px;background:var(--plus-soft);color:var(--plus);font-family:var(--f-num);font-size:18px;font-weight:700}
+.chip-plus:hover:not(:disabled){background:var(--plus);color:var(--surface)}
+.chip.absent .chip-main,.chip.absent .pts{opacity:.5}
+.chip.absent .cls{color:var(--minus)}
+.chip.lifted{opacity:.3}
+.ghost{position:fixed;left:0;top:0;z-index:70;pointer-events:none;box-shadow:0 12px 30px -8px rgba(18,32,51,.4);background:var(--surface);border-color:var(--accent);rotate:-1.5deg}
+body.is-dragging,body.is-dragging *{cursor:grabbing!important}
+
+.pool{margin-top:14px;--tc:var(--accent);background:rgba(255,255,255,.55);border:1.5px dashed var(--line-strong);box-shadow:none}
+.pool .bib{background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.pool .members{grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr))}
+.pool .g-score{align-items:center}
+.pool .note{font-size:13px;color:var(--muted);margin:0}
+.state{padding:48px 16px;text-align:center;color:var(--muted)}
+.emptystate{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:32px 20px;text-align:center}
+.emptystate h2{margin:0 0 6px;font-size:18px}
+.emptystate p{margin:0 0 16px;color:var(--muted)}
+.tip{font-size:13px;color:var(--muted);margin:14px 2px 0}
+
+/* rank */
+.sec{font-size:15px;font-weight:700;margin:0 0 10px;letter-spacing:.04em}
+.sec .muted{font-weight:400;font-size:13px}
+.muted{color:var(--muted)}
+.standings{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px;margin-bottom:28px}
+.stand{--tc:var(--muted);--tc-ink:#fff;display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;align-items:center;gap:10px;background:color-mix(in srgb,var(--tc) 8%,var(--surface));border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stand .rk{font-family:var(--f-num);font-size:16px;color:var(--muted);width:1.6ch}
+.stand .who{min-width:0}
+.stand .who b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stand .who span{font-size:12px;color:var(--muted)}
+.stand .total{font-family:var(--f-num);font-size:32px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.stand.lead{border-color:var(--tc)}
+.rank-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.rank-head .sec{margin:0}
+.table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse}
+th{font-size:12px;color:var(--muted);font-weight:500;text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);letter-spacing:.08em;white-space:nowrap}
+td{padding:7px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+th.r,td.r{text-align:right}
+td.big{font-family:var(--f-num);font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+td.rkn{font-family:var(--f-num);font-size:18px;color:var(--muted);width:3ch}
+td.rkn.rk-top{color:var(--accent);font-weight:700}
+.namebtn{font-weight:700;font-size:15.5px;padding:4px 0;text-decoration:underline;text-decoration-color:var(--line-strong);text-underline-offset:4px}
+.namebtn:hover{text-decoration-color:var(--accent)}
+.gtag{--tc:var(--muted);--tc-ink:#fff;display:inline-flex;align-items:center;gap:6px;font-size:13.5px}
+.check.lead input{accent-color:var(--t4)}
+.pill{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--minus-soft);color:var(--minus);margin-left:6px;vertical-align:2px}
+.acts{display:flex;gap:6px;justify-content:flex-end}
+.mini{width:40px;height:34px;border-radius:8px;font-family:var(--f-num);font-size:17px;font-weight:700}
+.mini.pos{background:var(--plus-soft);color:var(--plus)}
+.mini.neg{background:var(--minus-soft);color:var(--minus)}
+.dim{color:var(--faint)}
+
+/* roster */
+.roster-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:860px){.roster-grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.side{display:grid;gap:16px}
+.add-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.add-row .in{flex:1 1 120px;width:auto}
+.in{height:40px;padding:0 10px;border:1px solid var(--line-strong);border-radius:9px;background:var(--surface);width:100%;font-size:15px}
+.in:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+textarea.in{height:auto;min-height:130px;padding:10px;resize:vertical;line-height:1.7;font-size:14.5px}
+.panel .table-wrap{border-radius:10px}
+.roster td{padding:4px 8px}
+.roster .cell{height:36px;padding:0 8px;border:1px solid transparent;border-radius:7px;background:transparent;width:100%;min-width:5em;font-size:15px}
+.roster .cell:hover{border-color:var(--line)}
+.roster .cell:focus{border-color:var(--accent);background:var(--surface);outline:none}
+.roster .cell.name{font-weight:700}
+.roster .cell.en-in{font-family:var(--f-num);font-size:16px;font-weight:600;color:var(--accent);min-width:6em}
+.roster .cell.en-in::placeholder{color:var(--faint);font-weight:400}
+.check{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--minus)}
+.note{font-size:13px;color:var(--muted);margin:-4px 0 10px}
+.stack{display:grid;gap:10px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.linkbtn{color:var(--muted);font-size:13px;padding:6px 8px;border-radius:7px}
+.linkbtn:hover{color:var(--minus);background:var(--minus-soft)}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:16px}
+.scrim{position:absolute;inset:0;background:var(--scrim)}
+.dialog{position:relative;width:min(470px,100%);max-height:calc(100% - 16px);overflow:auto;background:var(--surface);border-radius:16px;padding:18px;box-shadow:0 24px 60px -20px rgba(0,0,0,.45);display:grid;gap:14px}
+@media (max-width:560px){
+  .modal{place-items:end center;padding:0}
+  .dialog{width:100%;border-radius:16px 16px 0 0;max-height:90%;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+}
+.dialog.tinted{background:linear-gradient(to bottom,color-mix(in srgb,var(--tc) 12%,var(--surface)) 0,var(--surface) 120px);background-color:var(--surface)}
+.sh-head{display:flex;align-items:center;gap:12px}
+.sh-head h2{margin:0;font-size:22px;line-height:1.2}
+.sh-head p{margin:0;font-size:13px}
+.sh-head > div{flex:1;min-width:0}
+.icon-btn{width:38px;height:38px;border-radius:10px;font-size:22px;color:var(--muted);flex:none}
+.icon-btn:hover{background:var(--surface-2);color:var(--ink)}
+.sh-score{display:flex;align-items:baseline;gap:8px}
+.sh-score .total{font-family:var(--f-num);font-size:52px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.sh-sec h3{margin:0 0 8px;font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.06em}
+.reasons{display:flex;flex-wrap:wrap;gap:6px}
+.rchip{height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--line-strong);font-size:13.5px}
+.rchip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:700}
+.deltas{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.delta{height:58px;border-radius:12px;font-family:var(--f-num);font-size:28px;font-weight:700}
+.delta.pos{background:var(--plus-soft);color:var(--plus)}
+.delta.neg{background:var(--minus-soft);color:var(--minus)}
+.delta:hover{filter:brightness(.96)}
+.moveto{display:flex;flex-wrap:wrap;gap:6px}
+.mv{--tc:var(--muted);--tc-ink:#fff;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 10px 0 5px;border:1px solid var(--line);border-radius:9px;font-size:13.5px}
+.mv.pool-mv{padding-left:10px}
+.mv[aria-current="true"]{border-color:var(--tc);background:color-mix(in srgb,var(--tc) 12%,var(--surface));font-weight:700}
+.row-between{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.row-between h3{margin:0}
+.toggle{height:34px;padding:0 14px;border-radius:999px;font-weight:700;font-size:13.5px;background:var(--plus-soft);color:var(--plus)}
+.toggle[aria-pressed="true"]{background:var(--minus-soft);color:var(--minus)}
+.hist{list-style:none;margin:0;padding:0;display:grid;gap:2px;font-size:13.5px}
+.hist li{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:10px;padding:4px 2px;border-bottom:1px dashed var(--line)}
+.rec-cancel{height:28px;padding:0 10px;border-radius:7px;font-size:12.5px;font-weight:700;color:var(--muted);border:1px solid var(--line)}
+.rec-cancel:hover{color:var(--minus);border-color:var(--minus);background:var(--minus-soft)}
+.log-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:28px 0 10px}
+.log-head .sec{margin:0}
+.log{list-style:none;margin:0;padding:4px 14px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.log li{display:grid;grid-template-columns:3.2em minmax(0,1fr) auto auto;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.log li:last-child{border-bottom:0}
+.log .when{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.log .who{display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap}
+.log .who b{font-size:15px}
+.log .who span:not(.bib){font-size:13px;color:var(--muted)}
+.log .d{font-family:var(--f-num);font-weight:700;font-size:20px;text-align:right;min-width:2.4ch}
+.log .d.pos{color:var(--plus)} .log .d.neg{color:var(--minus)}
+.log .none{display:block;color:var(--muted);font-size:14px;padding:10px 0}
+.hist li:last-child{border-bottom:0}
+.hist .when{color:var(--muted);font-variant-numeric:tabular-nums}
+.hist .d{font-family:var(--f-num);font-weight:700;font-size:16px}
+.hist .d.pos{color:var(--plus)} .hist .d.neg{color:var(--minus)}
+.cf-actions{display:flex;justify-content:flex-end;gap:8px}
+.dialog h2.cf{margin:0;font-size:18px}
+.dialog p.cf{margin:0;color:var(--muted)}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:80;background:var(--ink);color:var(--bg);padding:8px 8px 8px 16px;border-radius:12px;display:flex;align-items:center;gap:12px;max-width:calc(100% - 32px);font-size:14.5px;box-shadow:0 12px 30px -10px rgba(0,0,0,.4)}
+.toast.err{background:var(--minus);color:#fff}
+.toast button{border:1px solid color-mix(in srgb,currentColor 35%,transparent);border-radius:8px;padding:5px 12px;font-weight:700;white-space:nowrap}
+.toast .msg{padding-block:4px}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="banner" id="banner" hidden></div>
+  <header class="top">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 42 42" aria-hidden="true">
+        <circle cx="21" cy="21" r="17" fill="none" stroke="currentColor" stroke-width="2.4"/>
+        <ellipse cx="21" cy="21" rx="7.5" ry="17" fill="none" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M4 21h34M8 12h26M8 30h26" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <circle cx="21" cy="21" r="4" fill="var(--accent)"/>
+      </svg>
+      <div>
+        <p class="eyebrow">AI 足球無人機社團</p>
+        <h1>香山國小 分組積分</h1>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="切換畫面">
+      <button role="tab" id="tab-groups" data-tab="groups" aria-selected="true" aria-controls="view-groups">分組</button>
+      <button role="tab" id="tab-rank" data-tab="rank" aria-selected="false" aria-controls="view-rank">積分榜</button>
+      <button role="tab" id="tab-roster" data-tab="roster" aria-selected="false" aria-controls="view-roster">名單設定</button>
+    </nav>
+    <div class="userbox"><p class="sync" id="sync" data-state="loading" aria-live="polite"><span class="dot"></span><span id="syncText">連線中…</span></p><span id="userEmail" hidden></span><button id="logoutBtn" hidden>登出</button></div>
+  </header>
+
+  <main>
+    <section id="view-groups" class="view" role="tabpanel" aria-labelledby="tab-groups">
+      <div class="controls">
+        <div class="ctl">
+          <span class="lbl" id="lblCount">組數</span>
+          <div class="stepper" role="group" aria-labelledby="lblCount">
+            <button id="cntDown" aria-label="減少一組">−</button>
+            <output id="cntVal" aria-live="polite">4</output>
+            <button id="cntUp" aria-label="增加一組">+</button>
+          </div>
+          <span class="hint" id="cntHint"></span>
+        </div>
+        <div class="ctl">
+          <span class="lbl" id="lblMethod">分組方式</span>
+          <div class="seg" role="radiogroup" aria-labelledby="lblMethod" id="methodSeg">
+            <button role="radio" data-method="random" aria-checked="false">隨機</button>
+            <button role="radio" data-method="points" aria-checked="false">積分平均</button>
+            <button role="radio" data-method="mix" aria-checked="true">年級混合</button>
+          </div>
+        </div>
+        <button class="btn primary" id="regroup">重新分組</button>
+      </div>
+      <div id="board"><div class="state">載入名單中…</div></div>
+      <p class="tip">點名字：加分、取消加分、換組、標記缺席。拖曳名字可直接換組（平板或手機請長按再拖）。</p>
+    </section>
+
+    <section id="view-rank" class="view" role="tabpanel" aria-labelledby="tab-rank" hidden>
+      <h2 class="sec">各組總分 <span class="muted">組員個人積分加總</span></h2>
+      <div id="standings" class="standings"></div>
+      <div class="rank-head">
+        <h2 class="sec">個人積分</h2>
+        <div class="seg" role="radiogroup" aria-label="排序" id="rankSort">
+          <button role="radio" data-sort="total" aria-checked="true">依總分</button>
+          <button role="radio" data-sort="today" aria-checked="false">依今日</button>
+          <button role="radio" data-sort="cls" aria-checked="false">依班級</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="rank">
+          <thead><tr><th>名次</th><th>姓名</th><th>班級</th><th>組別</th><th class="r">今日</th><th class="r">總分</th><th class="r">加減分</th></tr></thead>
+          <tbody id="rankBody"></tbody>
+        </table>
+      </div>
+      <div class="log-head">
+        <h2 class="sec">今日加分紀錄 <span class="muted">按錯了可以在這裡取消</span></h2>
+      </div>
+      <ul class="log" id="todayLog"></ul>
+    </section>
+
+    <section id="view-roster" class="view" role="tabpanel" aria-labelledby="tab-roster" hidden>
+      <div class="roster-grid">
+        <div class="panel">
+          <h2 class="sec">學生名單 <span class="muted" id="rosterCount"></span></h2>
+          <form id="addForm" class="add-row" autocomplete="off">
+            <input class="in" id="addCls" placeholder="班級，例：三仁" maxlength="8" aria-label="班級">
+            <input class="in" id="addName" placeholder="姓名" maxlength="12" aria-label="姓名" required>
+            <input class="in" id="addEn" placeholder="英文名（可不填）" maxlength="20" aria-label="英文名" autocapitalize="words" spellcheck="false">
+            <button class="btn primary" type="submit">新增學生</button>
+          </form>
+          <div class="table-wrap">
+            <table class="roster">
+              <thead><tr><th>班級</th><th>姓名</th><th>英文名</th><th class="r">積分</th><th>小組長</th><th>出缺席</th><th></th></tr></thead>
+              <tbody id="rosterBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="side">
+          <div class="panel stack">
+            <h2 class="sec">貼上名單／補英文名</h2>
+            <p class="note">每行一位：班級、姓名、英文名（英文名可不填）。可直接從點名單或 Excel 複製貼上。已經在名單上的學生，只貼「姓名 英文名」就會補上英文名。</p>
+            <textarea class="in" id="importText" rows="6" placeholder="三仁	陳禹昊	Leo&#10;四愛	任妙予	Mia&#10;或只補英文名：徐旻雋 Ethan"></textarea>
+            <div><button class="btn" id="importBtn">加入名單</button></div>
+          </div>
+          <div class="panel stack">
+            <h2 class="sec">加分理由</h2>
+            <p class="note">用頓號分隔，會出現在加分視窗裡，按一下就能記錄原因。</p>
+            <input class="in" id="reasonsInput" aria-label="加分理由">
+          </div>
+          <div class="panel stack">
+            <h2 class="sec">備份</h2>
+            <p class="note">下載一份目前的名單、分組和積分。換電腦、換 Firebase 專案，或第一次搬資料進來時，用「匯入備份檔」讀回去。</p>
+            <div class="row">
+              <button class="btn" id="exportBtn">下載備份檔</button>
+              <label class="btn file-btn">匯入備份檔<input type="file" id="importFile" accept=".json,application/json"></label>
+            </div>
+          </div>
+          <div class="panel stack">
+            <h2 class="sec">重設</h2>
+            <p class="note">兩者都可以在跳出的提示裡按「復原」。</p>
+            <div class="row">
+              <button class="btn warn" id="resetPts">積分全部歸零</button>
+              <button class="btn warn" id="clearGroups">全部移到待分組</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="sheet" class="modal" hidden>
+  <div class="scrim" data-close></div>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="sheetName" id="sheetBody"></div>
+</div>
+
+<div id="confirm" class="modal" hidden>
+  <div class="scrim" data-cf="no"></div>
+  <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="cfTitle" aria-describedby="cfBody">
+    <h2 class="cf" id="cfTitle"></h2>
+    <p class="cf" id="cfBody"></p>
+    <div class="cf-actions">
+      <button class="btn" data-cf="no" id="cfCancel">取消</button>
+      <button class="btn warn-solid" data-cf="yes" id="cfOk">確定</button>
+    </div>
+  </div>
+</div>
+
+<div id="login" class="login" hidden>
+  <div class="card">
+    <svg class="mark" viewBox="0 0 42 42" aria-hidden="true"><circle cx="21" cy="21" r="17" fill="none" stroke="currentColor" stroke-width="2.4"/><ellipse cx="21" cy="21" rx="7.5" ry="17" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 21h34M8 12h26M8 30h26" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="21" cy="21" r="4" fill="var(--accent)"/></svg>
+    <h2>香山國小 分組積分</h2>
+    <p>請用老師的 Google 帳號登入</p>
+    <button class="btn primary" id="loginBtn">用 Google 登入</button>
+    <p class="err" id="loginMsg"></p>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" hidden><span class="msg" id="toastMsg"></span><button id="toastUndo" hidden>復原</button></div>
+
+<script src="firebase-config.js"></script>
+<script>
+(() => {
+'use strict';
+const GMIN = 2, GMAX = 8, HIST_MAX = 40, MAX_INFLIGHT = 6;
+const DEFAULT_REASONS = ['專注聆聽','團隊合作','飛行進步','主動幫忙','收拾器材','遵守規則'];
+const GRADE = {'一':1,'二':2,'三':3,'四':4,'五':5,'六':6};
+const METHOD_LABEL = {random:'隨機', points:'積分平均', mix:'年級混合'};
+const LS_KEY = 'xiangshan-groups-local-v1';
+const FIREBASE_VERSION = '10.12.2';
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+/* ---------- state ---------- */
+let db = null;
+const base = { students: new Map(), settings: null };   // server truth (or local)
+const queues = new Map();                               // path -> {busy, ops[]}
+let inflight = 0;
+const S = {
+  mode: 'loading', ready: false,
+  students: new Map(), settings: normSettings(null),
+  tab: 'groups', rankSort: 'total',
+  sheetId: null, sheetReason: '', sheetReturn: null,
+  error: null, undo: null
+};
+const bumps = new Map();
+
+/* ---------- helpers ---------- */
+const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const grade = s => GRADE[(s.cls || '').trim()[0]] || 0;
+const gIndex = g => { const k = parseInt(String(g || '').slice(1), 10); return Number.isFinite(k) ? k : 0; };
+const inGroup = s => !!s.grp && gIndex(s.grp) >= 1 && gIndex(s.grp) <= S.settings.groupCount;
+const groupName = g => ((S.settings.names[g] || '').trim()) || `第${gIndex(g)}組`;
+const enHTML = s => s.en ? `<span class="en">${esc(s.en)}</span>` : '';
+const cleanEn = v => String(v || '').replace(/\s+/g, ' ').trim().slice(0, 20);
+const signed = n => (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n);
+function todayStart(){ const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); }
+function todayPts(s, t0){ let a = 0; for (const h of s.hist) if (h && h.t >= t0) a += Number(h.d) || 0; return a; }
+function sortRoster(list){ return list.sort((a,b) => (a.absent - b.absent) || (a.ord - b.ord) || a.name.localeCompare(b.name, 'zh-Hant')); }
+function shuffle(a){ for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function fmtTime(t){ const d = new Date(t); const p = n => String(n).padStart(2,'0'); return `${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+function teamVars(i){ return i ? `--tc:var(--t${i});--tc-ink:var(--t${i}-ink)` : ''; }
+
+function normStudent(id, d){
+  d = d || {};
+  return { id, cls: String(d.cls || ''), name: String(d.name || ''), en: String(d.en || ''), pts: Number(d.pts) || 0,
+    absent: !!d.absent, lead: !!d.lead, grp: String(d.grp || ''), ord: Number(d.ord) || 0,
+    hist: Array.isArray(d.hist) ? d.hist : [] };
+}
+function normSettings(d){
+  d = d || {};
+  let n = Math.round(Number(d.groupCount) || 4); n = Math.min(GMAX, Math.max(GMIN, n));
+  return { groupCount: n,
+    names: (d.names && typeof d.names === 'object') ? { ...d.names } : {},
+    method: METHOD_LABEL[d.method] ? d.method : 'mix',
+    reasons: Array.isArray(d.reasons) ? d.reasons.map(String).filter(Boolean) : DEFAULT_REASONS.slice() };
+}
+
+/* ---------- store: base + pending overlay ---------- */
+function applyOp(cur, op){
+  if (op.kind === 'delete') return null;
+  if (op.kind === 'set') return { ...op.data };
+  return cur ? { ...cur, ...op.data } : null;
+}
+function derive(){
+  const st = new Map(base.students); let set = base.settings;
+  for (const [path, q] of queues){
+    for (const op of q.ops){
+      if (path === 'settings/main') set = applyOp(set, op);
+      else { const id = path.slice(9); const r = applyOp(st.get(id) || null, op); if (r) st.set(id, r); else st.delete(id); }
+    }
+  }
+  S.students = new Map([...st].map(([id, d]) => [id, normStudent(id, d)]));
+  S.settings = normSettings(set);
+}
+function write(path, kind, data){
+  if (S.mode === 'local'){
+    const op = { kind, data };
+    if (path === 'settings/main') base.settings = applyOp(base.settings, op);
+    else { const id = path.slice(9); const r = applyOp(base.students.get(id) || null, op); if (r) base.students.set(id, r); else base.students.delete(id); }
+    saveLocal(); derive(); scheduleRender(); return;
+  }
+  if (S.mode !== 'db') return;
+  let q = queues.get(path);
+  if (!q){ q = { busy: false, ops: [] }; queues.set(path, q); }
+  const last = q.ops[q.ops.length - 1];
+  const lastWaiting = last && !(q.busy && q.ops.length === 1);
+  if (kind === 'update' && lastWaiting && (last.kind === 'update' || last.kind === 'set')) Object.assign(last.data, data);
+  else q.ops.push({ kind, data: data ? { ...data } : null });
+  derive(); scheduleRender(); pumpAll();
+}
+function pumpAll(){ for (const path of queues.keys()){ if (inflight >= MAX_INFLIGHT) break; pump(path); } }
+async function pump(path){
+  const q = queues.get(path);
+  if (!q || q.busy || !q.ops.length || inflight >= MAX_INFLIGHT) return;
+  q.busy = true; inflight++; syncUI();
+  const op = q.ops[0]; const ref = db.doc(path);
+  const run = () => op.kind === 'set' ? ref.set(op.data) : op.kind === 'update' ? ref.update(op.data) : ref.delete();
+  try { await run(); S.error = null; }
+  catch (e) {
+    if (e && e.code === 'unavailable'){
+      await sleep(500 + Math.random() * 900);
+      try { await run(); S.error = null; } catch (e2) { writeFailed(e2); }
+    } else writeFailed(e);
+  }
+  q.ops.shift(); q.busy = false; inflight--;
+  if (!q.ops.length) queues.delete(path);
+  derive(); scheduleRender(); syncUI(); pumpAll();
+}
+function writeFailed(e){
+  const code = e && e.code;
+  let msg = '沒有儲存成功，請檢查網路後再試一次。';
+  if (code === 'permission_denied') msg = '沒有儲存：Firebase 安全規則擋下了這次寫入，請確認已照說明貼上 firestore.rules。';
+  else if (code === 'not_found') msg = '找不到這筆資料，可能已被刪除，重新整理頁面再試。';
+  else if (code === 'resource_exhausted') msg = 'Firebase 今天的免費額度用完了，或操作太快，請稍後再試。';
+  else if (code === 'invalid_argument') msg = '資料格式不對，沒有儲存。';
+  S.error = msg; showToast(msg, null, true);
+}
+function saveLocal(){
+  try { localStorage.setItem(LS_KEY, JSON.stringify({ students: [...base.students].map(([id, d]) => ({ id, ...d })), settings: base.settings })); } catch (e) {}
+}
+function loadLocal(){
+  try {
+    const raw = localStorage.getItem(LS_KEY); if (!raw) return;
+    const o = JSON.parse(raw);
+    base.students = new Map((o.students || []).map(s => { const { id, ...rest } = s; return [id, rest]; }));
+    base.settings = o.settings || null;
+  } catch (e) {}
+}
+
+/* ---------- subscriptions ---------- */
+let unsubs = [];
+function subscribe(){
+  unsubs.forEach(u => { try { u(); } catch (e) {} }); unsubs = [];
+  let gotA = false, gotB = false;
+  const ready = () => { if (gotA && gotB && !S.ready){ S.ready = true; } };
+  unsubs.push(db.collection('students').onSnapshot(snap => {
+    base.students = new Map(snap.docs.map(d => [d.id, d.data()]));
+    gotA = true; ready(); derive(); scheduleRender(); syncUI();
+  }, subErr));
+  unsubs.push(db.doc('settings/main').onSnapshot(snap => {
+    base.settings = snap.exists ? snap.data() : null;
+    gotB = true; ready(); derive(); scheduleRender(); syncUI();
+  }, subErr));
+}
+function subErr(e){
+  const code = e && e.code;
+  S.error = code === 'permission_denied'
+    ? '讀不到資料：Firebase 安全規則不允許，請確認已照說明貼上 firestore.rules。'
+    : '和 Firebase 的連線中斷，重新整理頁面再試。';
+  showBanner(S.error); syncUI();
+}
+
+/* ---------- Firebase (Firestore) adapter ---------- */
+function fbCode(e){
+  const c = (e && e.code) || '';
+  return { 'permission-denied': 'permission_denied', 'unauthenticated': 'permission_denied', 'not-found': 'not_found',
+    'resource-exhausted': 'resource_exhausted', 'invalid-argument': 'invalid_argument', 'unavailable': 'unavailable' }[c] || c || 'unknown';
+}
+function wrapErr(p){ return p.catch(e => { throw { code: fbCode(e), message: e && e.message }; }); }
+function makeDb(fs, F){
+  return {
+    doc(path){
+      const ref = F.doc(fs, path);
+      return {
+        set: d => wrapErr(F.setDoc(ref, d)),
+        update: d => wrapErr(F.updateDoc(ref, d)),
+        delete: () => wrapErr(F.deleteDoc(ref)),
+        onSnapshot: (next, err) => F.onSnapshot(ref,
+          snap => next({ id: snap.id, exists: snap.exists(), data: () => snap.data() }),
+          e => err && err({ code: fbCode(e), message: e.message }))
+      };
+    },
+    collection(path){
+      const ref = F.collection(fs, path);
+      return {
+        onSnapshot: (next, err) => F.onSnapshot(ref,
+          snap => next({ docs: snap.docs.map(d => ({ id: d.id, data: () => d.data() })) }),
+          e => err && err({ code: fbCode(e), message: e.message }))
+      };
+    }
+  };
+}
+function showBanner(html){ const b = $('#banner'); b.innerHTML = html; b.hidden = !html; }
+function configReady(c){
+  return !!(c && typeof c === 'object' && c.apiKey && c.projectId && !/貼上|YOUR|xxx/i.test(String(c.apiKey) + String(c.projectId)));
+}
+function waitForLogin(app, A, opts){
+  const auth = A.getAuth(app);
+  const allow = (opts.allowedEmails || []).map(x => String(x).trim().toLowerCase()).filter(Boolean);
+  $('#loginBtn').addEventListener('click', () => {
+    $('#loginMsg').textContent = '';
+    A.signInWithPopup(auth, new A.GoogleAuthProvider()).catch(e => {
+      const c = e && e.code;
+      $('#loginMsg').textContent = c === 'auth/unauthorized-domain'
+        ? '這個網址還沒加進 Firebase 的「授權網域」，請照說明第 6 步設定。'
+        : c === 'auth/popup-closed-by-user' ? '登入視窗被關掉了，再按一次就好。' : '登入沒有完成：' + (c || e.message);
+    });
+  });
+  $('#logoutBtn').addEventListener('click', () => A.signOut(auth).then(() => location.reload()));
+  return new Promise(resolve => {
+    A.onAuthStateChanged(auth, user => {
+      const email = user && (user.email || '').toLowerCase();
+      const ok = user && (!allow.length || allow.includes(email));
+      if (ok){
+        $('#login').hidden = true;
+        $('#userEmail').textContent = user.email; $('#userEmail').hidden = false; $('#logoutBtn').hidden = false;
+        resolve();
+      } else {
+        $('#login').hidden = false;
+        if (user){ $('#loginMsg').textContent = `${user.email} 沒有使用權限，請換老師的帳號。`; A.signOut(auth); }
+      }
+    });
+  });
+}
+
+/* ---------- actions ---------- */
+function patchStudent(id, patch){ write('students/' + id, 'update', patch); }
+function patchSettings(patch){
+  const q = queues.get('settings/main');
+  const exists = base.settings || (q && q.ops.some(o => o.kind === 'set'));
+  if (exists) write('settings/main', 'update', patch);
+  else write('settings/main', 'set', { ...S.settings, ...patch });
+}
+function addPoints(ids, delta, reason, extra){
+  const now = Date.now(); const prev = [];
+  ids.forEach(id => {
+    const s = S.students.get(id); if (!s) return;
+    prev.push({ id, pts: s.pts, hist: s.hist });
+    const hist = [...s.hist, { k: uid('h'), d: delta, r: reason || '', t: now, ...(extra || {}) }].slice(-HIST_MAX);
+    patchStudent(id, { pts: s.pts + delta, hist });
+    bumps.set(id, delta);
+  });
+  return () => prev.forEach(p => patchStudent(p.id, { pts: p.pts, hist: p.hist }));
+}
+function scoreOne(id, delta, reason){
+  const s = S.students.get(id); if (!s) return;
+  const undo = addPoints([id], delta, reason);
+  showToast(`${s.name} ${signed(delta)}${reason ? ' · ' + reason : ''}`, undo);
+}
+function scoreGroup(g){
+  const ids = [...S.students.values()].filter(s => s.grp === g && !s.absent).map(s => s.id);
+  if (!ids.length) return;
+  const undo = addPoints(ids, 1, '全組加分', { g, b: uid('b') });
+  showToast(`${groupName(g)} 全組 +1（${ids.length} 人）`, undo);
+}
+/* cancel specific records: items = [{id, k}] */
+function cancelRecords(items, label){
+  const prev = []; let n = 0;
+  items.forEach(({ id, k }) => {
+    const s = S.students.get(id); if (!s) return;
+    const h = s.hist.find(x => x && x.k === k); if (!h) return;
+    prev.push({ id, pts: s.pts, hist: s.hist });
+    patchStudent(id, { pts: s.pts - (Number(h.d) || 0), hist: s.hist.filter(x => !x || x.k !== k) });
+    n++;
+  });
+  if (!n) return;
+  showToast(`已取消：${label}`, () => prev.forEach(p => patchStudent(p.id, { pts: p.pts, hist: p.hist })));
+}
+function recordLabel(s, h){ return `${s.name} ${signed(Number(h.d) || 0)}${h.r ? '（' + h.r + '）' : ''}`; }
+function snapshotGroups(){ return [...S.students.values()].map(s => ({ id: s.id, grp: s.grp })); }
+function restoreGroups(prev, count){
+  if (count && count !== S.settings.groupCount) patchSettings({ groupCount: count });
+  prev.forEach(p => { const s = S.students.get(p.id); if (s && s.grp !== p.grp) patchStudent(p.id, { grp: p.grp }); });
+}
+function moveStudent(id, g){
+  const s = S.students.get(id); if (!s || s.grp === g) return;
+  patchStudent(id, { grp: g });
+}
+function assign(list, n, method){
+  const groups = Array.from({ length: n }, () => ({ m: [], sum: 0, grades: {}, leads: 0 }));
+  const put = (t, s) => { t.m.push(s); t.sum += s.pts; const gr = grade(s); t.grades[gr] = (t.grades[gr] || 0) + 1; if (s.lead) t.leads++; };
+  const pick = c => c[Math.floor(Math.random() * c.length)];
+  // 小組長先放：每組最多一位，組長比組數多時才會有第二位
+  shuffle(list.filter(s => s.lead)).forEach(s => {
+    const lo = Math.min(...groups.map(g => g.leads)); let c = groups.filter(g => g.leads === lo);
+    const ms = Math.min(...c.map(g => g.m.length)); c = c.filter(g => g.m.length === ms);
+    put(pick(c), s);
+  });
+  const order = shuffle(list.filter(s => !s.lead));
+  if (method === 'points') order.sort((a, b) => b.pts - a.pts);
+  if (method === 'mix') order.sort((a, b) => grade(b) - grade(a));
+  for (const s of order){
+    const minSize = Math.min(...groups.map(g => g.m.length));
+    let c = groups.filter(g => g.m.length === minSize);
+    if (method === 'mix'){
+      const gr = grade(s); const lo = Math.min(...c.map(g => g.grades[gr] || 0));
+      c = c.filter(g => (g.grades[gr] || 0) === lo);
+    }
+    if (method !== 'random'){ const lo = Math.min(...c.map(g => g.sum)); c = c.filter(g => g.sum === lo); }
+    put(pick(c), s);
+  }
+  return groups.map(g => g.m);
+}
+function regroup(){
+  if (!S.ready) return;
+  const n = S.settings.groupCount, m = S.settings.method;
+  const all = [...S.students.values()];
+  const present = all.filter(s => !s.absent);
+  if (!present.length) return;
+  const prev = snapshotGroups();
+  assign(present, n, m).forEach((arr, i) => arr.forEach(s => { const g = 'g' + (i + 1); if (s.grp !== g) patchStudent(s.id, { grp: g }); }));
+  all.filter(s => s.absent && s.grp).forEach(s => patchStudent(s.id, { grp: '' }));
+  showToast(`已用「${METHOD_LABEL[m]}」分成 ${n} 組`, () => restoreGroups(prev));
+}
+function setGroupCount(n){
+  if (!S.ready) return;
+  n = Math.min(GMAX, Math.max(GMIN, n));
+  const old = S.settings.groupCount; if (n === old) return;
+  const prev = snapshotGroups();
+  const students = [...S.students.values()];
+  patchSettings({ groupCount: n });
+  let moved = 0;
+  students.forEach(s => { if (s.grp && gIndex(s.grp) > n){ patchStudent(s.id, { grp: '' }); moved++; } });
+  if (moved) showToast(`改為 ${n} 組，${moved} 位移到待分組`, () => restoreGroups(prev, old));
+  else if (n > old) showToast(`改為 ${n} 組。按「重新分組」重新分配，或把名字拖進新的組`);
+}
+function fillPool(){
+  const n = S.settings.groupCount; const all = [...S.students.values()];
+  const pool = all.filter(s => !s.absent && !inGroup(s)); if (!pool.length) return;
+  const prev = snapshotGroups();
+  const groups = Array.from({ length: n }, (_, i) => {
+    const g = 'g' + (i + 1); const m = all.filter(s => s.grp === g && !s.absent);
+    return { g, size: m.length, sum: m.reduce((a, s) => a + s.pts, 0), leads: m.filter(s => s.lead).length };
+  });
+  shuffle(pool).sort((a, b) => (b.lead - a.lead) || (b.pts - a.pts)).forEach(s => {
+    let c = groups;
+    if (s.lead){ const lo = Math.min(...c.map(x => x.leads)); c = c.filter(x => x.leads === lo); }
+    const min = Math.min(...c.map(x => x.size)); c = c.filter(x => x.size === min);
+    const lo = Math.min(...c.map(x => x.sum)); c = c.filter(x => x.sum === lo);
+    const t = c[Math.floor(Math.random() * c.length)]; t.size++; t.sum += s.pts; if (s.lead) t.leads++;
+    patchStudent(s.id, { grp: t.g });
+  });
+  showToast(`已把 ${pool.length} 位補進人數最少的組`, () => restoreGroups(prev));
+}
+function renameGroup(g, val){
+  val = String(val || '').trim().slice(0, 12);
+  if ((S.settings.names[g] || '') === val) return;
+  patchSettings({ names: { ...S.settings.names, [g]: val } });
+}
+function nextOrd(){ let m = 0; S.students.forEach(s => { if (s.ord > m) m = s.ord; }); return m + 1; }
+function createStudent(cls, name, ord, en){
+  const id = uid('s');
+  write('students/' + id, 'set', { cls, name, en: en || '', pts: 0, absent: false, grp: '', ord: ord ?? nextOrd(), hist: [] });
+  return id;
+}
+function deleteStudent(id){
+  const s = S.students.get(id); if (!s) return;
+  const { id: _, ...data } = s;
+  write('students/' + id, 'delete', null);
+  if (S.sheetId === id) closeSheet();
+  showToast(`已刪除 ${s.name}`, () => write('students/' + id, 'set', data));
+}
+function looksLikeClass(t){ return /^[一二三四五六1-6][^\s]{0,3}$/.test(t) && t.length <= 4; }
+const isLatin = t => /^[A-Za-z][A-Za-z.'’\-]*(?: [A-Za-z][A-Za-z.'’\-]*)*$/.test(t);
+function parseRoster(text){
+  const out = [];
+  text.split(/\r?\n/).forEach(line => {
+    const parts = [];
+    line.split(/[\t,，;；]+/).map(x => x.trim()).filter(Boolean).forEach(c => {
+      if (isLatin(c.replace(/\s+/g, ' '))) parts.push(c.replace(/\s+/g, ' '));
+      else c.split(/\s+/).filter(Boolean).forEach(t => parts.push(t));
+    });
+    if (!parts.length) return;
+    const en = cleanEn(parts.filter(isLatin).join(' '));
+    const rest = parts.filter(t => !isLatin(t));
+    if (rest.some(p => p === '姓名' || p === '班級' || p === '英文名')) return;
+    let cls = '', name = '';
+    if (rest.length === 1) name = rest[0];
+    else if (rest.length > 1){
+      if (looksLikeClass(rest[0])){ cls = rest[0]; name = rest.slice(1).join(''); }
+      else if (looksLikeClass(rest[rest.length - 1])){ cls = rest[rest.length - 1]; name = rest.slice(0, -1).join(''); }
+      else { cls = rest[0]; name = rest.slice(1).join(''); }
+    }
+    if (name) out.push({ cls: cls.slice(0, 8), name: name.slice(0, 12), en });
+  });
+  return out;
+}
+
+/* ---------- rendering ---------- */
+let raf = 0, deferred = false;
+function scheduleRender(){ if (raf) return; raf = requestAnimationFrame(() => { raf = 0; render(); }); }
+function editingIn(el){
+  const a = document.activeElement;
+  return !!(a && el && el.contains(a) && (a.tagName === 'TEXTAREA' || (a.tagName === 'INPUT' && a.type !== 'checkbox')));
+}
+function flushDeferred(){ if (deferred){ deferred = false; scheduleRender(); } }
+function render(){
+  if (dragging){ deferred = true; return; }
+  syncUI();
+  if (S.tab === 'groups'){ if (editingIn($('#board'))) deferred = true; else renderGroups(); }
+  else if (S.tab === 'rank') renderRank();
+  else { if (editingIn($('#rosterBody'))) deferred = true; else renderRosterBody(); renderRosterSide(); }
+  if (S.sheetId) renderSheet();
+  bumps.clear();
+}
+function syncUI(){
+  const el = $('#sync'), tx = $('#syncText');
+  let state = 'loading', text = '連線中…';
+  if (S.mode === 'local'){ state = 'local'; text = '未連上 Firebase，資料只存在這台裝置'; }
+  else if (S.mode === 'db'){
+    if (!S.ready){ state = 'loading'; text = '讀取名單中…'; }
+    else if (inflight || queues.size){ state = 'saving'; text = '儲存中…'; }
+    else if (S.error){ state = 'error'; text = '上次儲存失敗'; }
+    else { state = 'ok'; text = '已同步到 Firebase'; }
+  }
+  el.dataset.state = state; tx.textContent = text;
+}
+
+function chipHTML(s){
+  const b = bumps.get(s.id);
+  const bump = b === undefined ? '' : (b < 0 ? ' bump-neg' : ' bump');
+  return `<li class="chip${s.absent ? ' absent' : ''}" data-id="${esc(s.id)}">
+    <button class="chip-main" data-act="open" aria-label="${esc(s.name)}${s.en ? ' ' + esc(s.en) : ''}，${esc(s.cls)}，${s.pts} 分。開啟加分與換組">
+      <span class="nm">${esc(s.name)}</span>${enHTML(s)}<span class="cls">${esc(s.cls)}${s.absent ? ' · 缺席' : ''}</span>
+    </button>
+    <span class="pts${bump}">${s.pts}</span>
+    <button class="chip-plus" data-act="plus" aria-label="${esc(s.name)} 加 1 分"${s.absent ? ' disabled' : ''}>+1</button>
+  </li>`;
+}
+function renderGroups(){
+  const st = S.settings, n = st.groupCount;
+  $('#cntVal').textContent = n;
+  $('#cntDown').disabled = !S.ready || n <= GMIN;
+  $('#cntUp').disabled = !S.ready || n >= GMAX;
+  $$('#methodSeg [data-method]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.method === st.method)));
+  const all = [...S.students.values()];
+  const present = all.filter(s => !s.absent).length;
+  const lo = Math.floor(present / n), hi = Math.ceil(present / n);
+  $('#cntHint').textContent = present ? `出席 ${present} 人，每組 ${lo === hi ? lo : lo + '–' + hi} 人` : '';
+  $('#regroup').disabled = !S.ready || !present;
+  const board = $('#board');
+  if (!S.ready){ board.innerHTML = '<div class="state">讀取名單中…</div>'; return; }
+  if (!all.length){
+    board.innerHTML = `<div class="emptystate"><h2>還沒有學生名單</h2><p>到「名單設定」貼上名單，每行一位：班級、姓名、英文名。</p><div class="row" style="justify-content:center"><button class="btn primary" data-act="goroster">前往名單設定</button><label class="btn file-btn">匯入備份檔<input type="file" class="importFileAlt" accept=".json,application/json"></label></div></div>`;
+    return;
+  }
+  const t0 = todayStart();
+  let html = '<div class="groups">';
+  for (let i = 1; i <= n; i++){
+    const g = 'g' + i;
+    const members = sortRoster(all.filter(s => s.grp === g));
+    const total = members.reduce((a, s) => a + s.pts, 0);
+    const today = members.reduce((a, s) => a + todayPts(s, t0), 0);
+    const present = members.filter(s => !s.absent).length;
+    html += `<article class="group" data-drop="${g}" style="${teamVars(i)}">
+      <header class="g-head"><span class="bib" aria-hidden="true">${i}</span>
+        <input class="gname" id="gname-${g}" data-g="${g}" value="${esc(st.names[g] || '')}" placeholder="第${i}組" maxlength="12" aria-label="第${i}組的組名">
+        <span class="count">${members.length} 人</span></header>
+      <div class="g-score"><span class="total">${total}</span><span class="unit">分</span>${today ? `<span class="today${today < 0 ? ' neg' : ''}">今日 ${signed(today)}</span>` : ''}
+        <button class="btn sm" data-act="gplus" data-g="${g}"${present ? '' : ' disabled'}>全組 +1</button></div>
+      <ul class="members">${members.map(chipHTML).join('') || '<li class="empty">把名字拖到這裡</li>'}</ul>
+    </article>`;
+  }
+  html += '</div>';
+  const pool = sortRoster(all.filter(s => !inGroup(s)));
+  const waiting = pool.filter(s => !s.absent).length;
+  html += `<article class="group pool" data-drop="">
+    <header class="g-head"><span class="bib" aria-hidden="true">–</span><h3 class="gtitle">待分組</h3><span class="count">${pool.length} 人</span></header>
+    ${waiting ? `<div class="g-score"><p class="note">${waiting} 位出席的學生還沒分到組</p><button class="btn sm" data-act="fill">平均補進各組</button></div>` : ''}
+    <ul class="members">${pool.map(chipHTML).join('') || '<li class="empty">拖到這裡，可以暫時把學生移出分組</li>'}</ul>
+  </article>`;
+  board.innerHTML = html;
+}
+function rankMap(list, key){
+  const sorted = [...list].sort((a, b) => key(b) - key(a));
+  const m = new Map(); let prev = null, r = 0;
+  sorted.forEach((x, i) => { const v = key(x); if (v !== prev){ r = i + 1; prev = v; } m.set(x.id ?? x.g, r); });
+  return m;
+}
+function renderRank(){
+  const body = $('#rankBody'), stand = $('#standings');
+  $$('#rankSort [data-sort]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.sort === S.rankSort)));
+  if (!S.ready){ stand.innerHTML = ''; body.innerHTML = '<tr><td colspan="7" class="muted">讀取名單中…</td></tr>'; return; }
+  const all = [...S.students.values()], t0 = todayStart(), n = S.settings.groupCount;
+  const gs = [];
+  for (let i = 1; i <= n; i++){
+    const g = 'g' + i, m = all.filter(s => s.grp === g);
+    gs.push({ g, i, size: m.length, total: m.reduce((a, s) => a + s.pts, 0), today: m.reduce((a, s) => a + todayPts(s, t0), 0) });
+  }
+  const gr = rankMap(gs, x => x.total);
+  gs.sort((a, b) => b.total - a.total || b.today - a.today || a.i - b.i);
+  const topTotal = gs.length ? gs[0].total : 0;
+  stand.innerHTML = gs.map(x => `<div class="stand${x.total === topTotal && topTotal > 0 ? ' lead' : ''}" style="${teamVars(x.i)}">
+      <span class="rk">${gr.get(x.g)}</span><span class="bib sm" aria-hidden="true">${x.i}</span>
+      <div class="who"><b>${esc(groupName(x.g))}</b><span>${x.size} 人${x.today ? ` · 今日 ${signed(x.today)}` : ''}</span></div>
+      <span class="total">${x.total}</span></div>`).join('');
+  const rows = all.map(s => ({ ...s, td: todayPts(s, t0) }));
+  const rk = rankMap(rows, x => x.pts);
+  if (S.rankSort === 'today') rows.sort((a, b) => b.td - a.td || b.pts - a.pts || a.ord - b.ord);
+  else if (S.rankSort === 'cls') rows.sort((a, b) => grade(a) - grade(b) || a.cls.localeCompare(b.cls, 'zh-Hant') || a.ord - b.ord);
+  else rows.sort((a, b) => b.pts - a.pts || b.td - a.td || a.ord - b.ord);
+  body.innerHTML = rows.length ? rows.map(s => {
+    const r = rk.get(s.id), gi = inGroup(s) ? gIndex(s.grp) : 0;
+    return `<tr>
+      <td class="rkn${r <= 3 && s.pts > 0 ? ' rk-top' : ''}">${r}</td>
+      <td><button class="namebtn" data-act="open" data-id="${esc(s.id)}">${esc(s.name)}</button>${enHTML(s)}${s.absent ? '<span class="pill">缺席</span>' : ''}</td>
+      <td class="muted">${esc(s.cls) || '—'}</td>
+      <td>${gi ? `<span class="gtag" style="${teamVars(gi)}"><span class="bib xs" aria-hidden="true">${gi}</span>${esc(groupName(s.grp))}</span>` : '<span class="dim">待分組</span>'}</td>
+      <td class="r tnum ${s.td ? '' : 'dim'}">${s.td ? signed(s.td) : '—'}</td>
+      <td class="r big">${s.pts}</td>
+      <td><div class="acts"><button class="mini neg" data-act="minus" data-id="${esc(s.id)}" aria-label="${esc(s.name)} 減 1 分">−1</button><button class="mini pos" data-act="plus" data-id="${esc(s.id)}" aria-label="${esc(s.name)} 加 1 分">+1</button></div></td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="7" class="muted">還沒有學生，到「名單設定」加入名單。</td></tr>';
+  renderLog();
+}
+let logRows = new Map();
+function renderLog(){
+  const t0 = todayStart(), rows = new Map();
+  S.students.forEach(s => s.hist.forEach(h => {
+    if (!h || !(h.t >= t0)) return;
+    const key = h.b ? 'b:' + h.b : 's:' + s.id + ':' + h.k;
+    let r = rows.get(key);
+    if (!r){ r = { key, t: h.t, d: Number(h.d) || 0, reason: h.r || '', g: h.b ? (h.g || '') : '', items: [], people: [] }; rows.set(key, r); }
+    r.items.push({ id: s.id, k: h.k }); r.people.push(s);
+  }));
+  logRows = rows;
+  const hm = t => { const d = new Date(t); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+  const list = [...rows.values()].sort((a, b) => b.t - a.t);
+  $('#todayLog').innerHTML = list.length ? list.map(r => {
+    let who;
+    if (r.g){
+      const i = gIndex(r.g);
+      who = `<span class="bib xs" style="${teamVars(i)}" aria-hidden="true">${i}</span><b>${esc(groupName(r.g))} 全組</b><span>${r.people.map(p => esc(p.name)).join('、')}</span>`;
+    } else {
+      const s = r.people[0];
+      who = `<b>${esc(s.name)}</b>${enHTML(s)}<span>${esc(s.cls)}${r.reason ? ' · ' + esc(r.reason) : ''}</span>`;
+    }
+    return `<li><span class="when">${hm(r.t)}</span><span class="who">${who}</span><span class="d ${r.d < 0 ? 'neg' : 'pos'}">${signed(r.d)}</span><button class="rec-cancel" data-row="${esc(r.key)}">取消</button></li>`;
+  }).join('') : '<li style="display:block"><span class="none">今天還沒有加分紀錄</span></li>';
+}
+function renderRosterBody(){
+  const body = $('#rosterBody');
+  if (!S.ready){ body.innerHTML = '<tr><td colspan="7" class="muted">讀取名單中…</td></tr>'; return; }
+  const list = [...S.students.values()].sort((a, b) => a.ord - b.ord || a.name.localeCompare(b.name, 'zh-Hant'));
+  body.innerHTML = list.length ? list.map(s => `<tr data-id="${esc(s.id)}">
+      <td><input class="cell" id="r-cls-${esc(s.id)}" data-field="cls" value="${esc(s.cls)}" maxlength="8" aria-label="${esc(s.name)} 的班級"></td>
+      <td><input class="cell name" id="r-name-${esc(s.id)}" data-field="name" value="${esc(s.name)}" maxlength="12" aria-label="姓名"></td>
+      <td><input class="cell en-in" id="r-en-${esc(s.id)}" data-field="en" value="${esc(s.en)}" maxlength="20" placeholder="輸入英文名" autocapitalize="words" spellcheck="false" aria-label="${esc(s.name)} 的英文名"></td>
+      <td class="r big">${s.pts}</td>
+      <td><label class="check lead"><input type="checkbox" id="r-lead-${esc(s.id)}" data-field="lead"${s.lead ? ' checked' : ''}>組長</label></td>
+      <td><label class="check"><input type="checkbox" id="r-abs-${esc(s.id)}" data-field="absent"${s.absent ? ' checked' : ''}>缺席</label></td>
+      <td class="r"><button class="linkbtn" data-act="del">刪除</button></td>
+    </tr>`).join('') : '<tr><td colspan="7" class="muted">名單是空的，可以在上方新增，或從右邊貼上整份名單。</td></tr>';
+}
+function renderRosterSide(){
+  $('#rosterCount').textContent = S.ready ? `${S.students.size} 人` : '';
+  const ri = $('#reasonsInput');
+  if (document.activeElement !== ri) ri.value = S.settings.reasons.join('、');
+}
+function renderSheet(){
+  const s = S.students.get(S.sheetId);
+  if (!s){ closeSheet(); return; }
+  const t0 = todayStart(), td = todayPts(s, t0), n = S.settings.groupCount;
+  const gi = inGroup(s) ? gIndex(s.grp) : 0;
+  const reasons = S.settings.reasons;
+  let mv = '';
+  for (let i = 1; i <= n; i++){
+    const g = 'g' + i;
+    mv += `<button class="mv" data-move="${g}" style="${teamVars(i)}" aria-current="${s.grp === g}"><span class="bib sm" aria-hidden="true">${i}</span>${esc(groupName(g))}</button>`;
+  }
+  mv += `<button class="mv pool-mv" data-move="" aria-current="${!gi}">待分組</button>`;
+  const hist = s.hist.filter(Boolean).slice(-10).reverse();
+  const sb = $('#sheetBody');
+  sb.className = 'dialog' + (gi ? ' tinted' : '');
+  sb.style.cssText = teamVars(gi);
+  sb.innerHTML = `
+    <header class="sh-head">
+      <span class="bib"${gi ? ` style="${teamVars(gi)}"` : ' style="--tc:var(--surface-2);--tc-ink:var(--muted)"'} aria-hidden="true">${gi || '–'}</span>
+      <div><h2 id="sheetName">${esc(s.name)}${enHTML(s)}</h2><p class="muted">${esc(s.cls)}${s.cls ? ' · ' : ''}${gi ? esc(groupName(s.grp)) : '待分組'}</p></div>
+      <button class="icon-btn" data-close aria-label="關閉">×</button>
+    </header>
+    <div class="sh-score"><span class="total">${s.pts}</span><span class="unit">分</span>${td ? `<span class="today${td < 0 ? ' neg' : ''}">今日 ${signed(td)}</span>` : ''}${s.absent ? '<span class="pill">今天缺席</span>' : ''}</div>
+    ${reasons.length ? `<section class="sh-sec"><h3>加分理由（可不選）</h3><div class="reasons">${reasons.map(r => `<button class="rchip" data-reason="${esc(r)}" aria-pressed="${S.sheetReason === r}">${esc(r)}</button>`).join('')}</div></section>` : ''}
+    <div class="deltas">${[-1, 1, 2, 3, 5].map(d => `<button class="delta ${d < 0 ? 'neg' : 'pos'}" data-delta="${d}" aria-label="${d < 0 ? '減' : '加'} ${Math.abs(d)} 分">${signed(d)}</button>`).join('')}</div>
+    <section class="sh-sec"><h3>移到</h3><div class="moveto">${mv}</div></section>
+    <section class="sh-sec row-between"><h3>今天出缺席</h3><button class="toggle" data-act="absent" aria-pressed="${s.absent}">${s.absent ? '缺席（按一下改出席）' : '出席'}</button></section>
+    <section class="sh-sec"><h3>最近紀錄</h3>${hist.length ? `<ol class="hist">${hist.map(h => `<li><span class="when">${fmtTime(h.t)}</span><span>${esc(h.r || (h.d < 0 ? '扣分' : '加分'))}</span><span class="d ${h.d < 0 ? 'neg' : 'pos'}">${signed(Number(h.d) || 0)}</span><button class="rec-cancel" data-cancel="${esc(h.k)}" aria-label="取消這筆 ${signed(Number(h.d) || 0)}">取消</button></li>`).join('')}</ol>` : '<p class="muted" style="margin:0;font-size:13.5px">還沒有紀錄</p>'}</section>`;
+}
+
+/* ---------- sheet / confirm / toast ---------- */
+function openSheet(id){
+  if (!S.students.has(id)) return;
+  S.sheetReturn = document.activeElement;
+  S.sheetId = id; S.sheetReason = '';
+  $('#sheet').hidden = false; renderSheet();
+  const c = $('#sheetBody [data-close]'); if (c) c.focus();
+}
+function closeSheet(){
+  $('#sheet').hidden = true; S.sheetId = null; S.sheetReason = '';
+  const r = S.sheetReturn; S.sheetReturn = null;
+  if (r && document.body.contains(r)) try { r.focus(); } catch (e) {}
+}
+$('#sheet').addEventListener('click', e => {
+  const id = S.sheetId; if (!id) return;
+  if (e.target.closest('[data-close]')){ closeSheet(); return; }
+  const cb = e.target.closest('[data-cancel]');
+  if (cb){
+    const s = S.students.get(id); const h = s && s.hist.find(x => x && x.k === cb.dataset.cancel);
+    if (h) cancelRecords([{ id, k: h.k }], recordLabel(s, h));
+    return;
+  }
+  const rb = e.target.closest('[data-reason]');
+  if (rb){ S.sheetReason = S.sheetReason === rb.dataset.reason ? '' : rb.dataset.reason; renderSheet(); const again = $$('#sheetBody [data-reason]').find(x => x.dataset.reason === rb.dataset.reason); if (again) again.focus(); return; }
+  const db_ = e.target.closest('[data-delta]');
+  if (db_){ scoreOne(id, Number(db_.dataset.delta), S.sheetReason); closeSheet(); return; }
+  const mv = e.target.closest('[data-move]');
+  if (mv){ moveStudent(id, mv.dataset.move); return; }
+  if (e.target.closest('[data-act="absent"]')){ const s = S.students.get(id); if (s) patchStudent(id, { absent: !s.absent }); }
+});
+
+let cfResolve = null;
+function confirmBox(title, body, okText){
+  return new Promise(res => {
+    cfResolve = res;
+    $('#cfTitle').textContent = title; $('#cfBody').textContent = body; $('#cfOk').textContent = okText;
+    $('#confirm').hidden = false; $('#cfCancel').focus();
+  });
+}
+$('#confirm').addEventListener('click', e => {
+  const b = e.target.closest('[data-cf]'); if (!b || !cfResolve) return;
+  $('#confirm').hidden = true; const r = cfResolve; cfResolve = null; r(b.dataset.cf === 'yes');
+});
+
+let toastTimer = 0;
+function showToast(msg, undo, isErr){
+  const t = $('#toast');
+  $('#toastMsg').textContent = msg;
+  $('#toastUndo').hidden = !undo;
+  S.undo = undo || null;
+  t.classList.toggle('err', !!isErr);
+  t.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.hidden = true; S.undo = null; }, undo ? 7000 : isErr ? 6000 : 3500);
+}
+$('#toastUndo').addEventListener('click', () => {
+  const u = S.undo; S.undo = null; $('#toast').hidden = true;
+  if (u){ u(); showToast('已復原'); }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (!$('#confirm').hidden){ $('#confirm').hidden = true; if (cfResolve){ const r = cfResolve; cfResolve = null; r(false); } return; }
+  if (S.sheetId) closeSheet();
+});
+
+/* ---------- tabs & controls ---------- */
+function setTab(t){
+  S.tab = t;
+  $$('.tabs [data-tab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === t)));
+  ['groups', 'rank', 'roster'].forEach(v => { $('#view-' + v).hidden = v !== t; });
+  try { localStorage.setItem(LS_KEY + '-tab', t); } catch (e) {}
+  render();
+}
+$('.tabs').addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (b) setTab(b.dataset.tab); });
+$('#cntDown').addEventListener('click', () => setGroupCount(S.settings.groupCount - 1));
+$('#cntUp').addEventListener('click', () => setGroupCount(S.settings.groupCount + 1));
+$('#methodSeg').addEventListener('click', e => {
+  const b = e.target.closest('[data-method]'); if (!b || !S.ready) return;
+  if (S.settings.method !== b.dataset.method) patchSettings({ method: b.dataset.method });
+});
+$('#regroup').addEventListener('click', regroup);
+$('#rankSort').addEventListener('click', e => { const b = e.target.closest('[data-sort]'); if (b){ S.rankSort = b.dataset.sort; renderRank(); } });
+$('#view-rank').addEventListener('click', e => {
+  const rc = e.target.closest('[data-row]');
+  if (rc){
+    const r = logRows.get(rc.dataset.row); if (!r) return;
+    const label = r.g ? `${groupName(r.g)} 全組 ${signed(r.d)}（${r.items.length} 人）` : recordLabel(r.people[0], { d: r.d, r: r.reason });
+    cancelRecords(r.items, label); return;
+  }
+  const b = e.target.closest('[data-act]'); if (!b || !b.dataset.id) return;
+  if (b.dataset.act === 'open') openSheet(b.dataset.id);
+  else if (b.dataset.act === 'plus') scoreOne(b.dataset.id, 1, '');
+  else if (b.dataset.act === 'minus') scoreOne(b.dataset.id, -1, '');
+});
+
+/* board clicks, group names */
+const board = $('#board');
+let suppressClick = false;
+board.addEventListener('click', e => {
+  if (suppressClick) return;
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const act = b.dataset.act, chip = b.closest('.chip');
+  if (act === 'open' && chip) openSheet(chip.dataset.id);
+  else if (act === 'plus' && chip) scoreOne(chip.dataset.id, 1, '');
+  else if (act === 'gplus') scoreGroup(b.dataset.g);
+  else if (act === 'fill') fillPool();
+  else if (act === 'goroster') setTab('roster');
+});
+board.addEventListener('change', e => { if (e.target.matches('.gname')) renameGroup(e.target.dataset.g, e.target.value); });
+board.addEventListener('keydown', e => { if (e.target.matches('.gname') && e.key === 'Enter'){ e.preventDefault(); e.target.blur(); } });
+board.addEventListener('focusout', () => setTimeout(flushDeferred, 0));
+board.addEventListener('contextmenu', e => { if (e.target.closest('.chip')) e.preventDefault(); });
+
+/* drag to move */
+let pd = null, dragging = null;
+board.addEventListener('pointerdown', e => {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  const chip = e.target.closest('.chip');
+  if (!chip || e.target.closest('.chip-plus') || !S.ready) return;
+  pd = { id: chip.dataset.id, chip, x: e.clientX, y: e.clientY, type: e.pointerType, timer: 0 };
+  if (e.pointerType === 'touch') pd.timer = setTimeout(() => { if (pd) startDrag(pd.x, pd.y); }, 320);
+});
+window.addEventListener('pointermove', e => {
+  if (dragging){ moveDrag(e.clientX, e.clientY); return; }
+  if (!pd) return;
+  const dist = Math.hypot(e.clientX - pd.x, e.clientY - pd.y);
+  if (pd.type === 'touch'){ if (dist > 10){ clearTimeout(pd.timer); pd = null; } }
+  else if (dist > 6) startDrag(e.clientX, e.clientY);
+});
+window.addEventListener('pointerup', e => { if (dragging) endDrag(); cancelPending(); });
+window.addEventListener('pointercancel', () => { if (dragging) endDrag(true); cancelPending(); });
+document.addEventListener('touchmove', e => { if (dragging) e.preventDefault(); }, { passive: false });
+function cancelPending(){ if (pd){ clearTimeout(pd.timer); pd = null; } }
+function startDrag(x, y){
+  const s = S.students.get(pd.id); if (!s){ pd = null; return; }
+  clearTimeout(pd.timer);
+  const r = pd.chip.getBoundingClientRect();
+  const ghost = pd.chip.cloneNode(true);
+  ghost.classList.add('ghost'); ghost.removeAttribute('data-id'); ghost.style.width = r.width + 'px';
+  ghost.querySelectorAll('button').forEach(b => b.setAttribute('tabindex', '-1'));
+  document.body.appendChild(ghost);
+  dragging = { id: pd.id, ghost, dx: x - r.left, dy: y - r.top, from: s.grp, over: null, src: pd.chip };
+  pd.chip.classList.add('lifted'); document.body.classList.add('is-dragging');
+  pd = null;
+  moveDrag(x, y);
+}
+function moveDrag(x, y){
+  const d = dragging;
+  d.ghost.style.transform = `translate(${x - d.dx}px, ${y - d.dy}px)`;
+  const el = document.elementFromPoint(x, y);
+  const target = el ? el.closest('[data-drop]') : null;
+  if (target !== d.over){ if (d.over) d.over.classList.remove('over'); if (target) target.classList.add('over'); d.over = target; }
+  if (y < 70) window.scrollBy(0, -14); else if (y > window.innerHeight - 70) window.scrollBy(0, 14);
+}
+function endDrag(cancelled){
+  const d = dragging; dragging = null;
+  d.ghost.remove(); d.src.classList.remove('lifted'); document.body.classList.remove('is-dragging');
+  if (d.over) d.over.classList.remove('over');
+  suppressClick = true; setTimeout(() => { suppressClick = false; }, 250);
+  if (!cancelled && d.over){
+    const g = d.over.dataset.drop;
+    if (g !== d.from){
+      moveStudent(d.id, g);
+      const s = S.students.get(d.id);
+      if (s) showToast(`${s.name} → ${g ? groupName(g) : '待分組'}`, () => patchStudent(d.id, { grp: d.from }));
+    }
+  }
+  deferred = false; render();
+}
+
+/* roster */
+$('#addForm').addEventListener('submit', e => {
+  e.preventDefault();
+  if (!S.ready) return;
+  const cls = $('#addCls').value.trim().slice(0, 8), name = $('#addName').value.trim().slice(0, 12), en = cleanEn($('#addEn').value);
+  if (!name){ $('#addName').focus(); return; }
+  createStudent(cls, name, undefined, en);
+  $('#addName').value = ''; $('#addEn').value = ''; $('#addName').focus();
+  showToast(`已新增 ${name}，目前在「待分組」`);
+});
+const rosterBody = $('#rosterBody');
+rosterBody.addEventListener('change', e => {
+  const tr = e.target.closest('tr[data-id]'); if (!tr) return;
+  const id = tr.dataset.id, f = e.target.dataset.field; const s = S.students.get(id); if (!s) return;
+  if (f === 'absent') patchStudent(id, { absent: e.target.checked });
+  else if (f === 'lead') patchStudent(id, { lead: e.target.checked });
+  else if (f === 'cls'){ const v = e.target.value.trim().slice(0, 8); if (v !== s.cls) patchStudent(id, { cls: v }); }
+  else if (f === 'en'){ const v = cleanEn(e.target.value); e.target.value = v; if (v !== s.en) patchStudent(id, { en: v }); }
+  else if (f === 'name'){ const v = e.target.value.trim().slice(0, 12); if (v && v !== s.name) patchStudent(id, { name: v }); else e.target.value = s.name; }
+});
+rosterBody.addEventListener('keydown', e => { if (e.target.matches('.cell') && e.key === 'Enter'){ e.preventDefault(); e.target.blur(); } });
+rosterBody.addEventListener('focusout', () => setTimeout(flushDeferred, 0));
+rosterBody.addEventListener('click', async e => {
+  const b = e.target.closest('[data-act="del"]'); if (!b) return;
+  const id = b.closest('tr').dataset.id, s = S.students.get(id); if (!s) return;
+  if (await confirmBox(`刪除 ${s.name}？`, `${s.name} 的 ${s.pts} 分和加分紀錄會一起刪除。`, '刪除')) deleteStudent(id);
+});
+$('#importBtn').addEventListener('click', () => {
+  if (!S.ready) return;
+  const rows = parseRoster($('#importText').value);
+  if (!rows.length){ showToast('沒有讀到名字。每行一位：班級、姓名、英文名', null, true); return; }
+  const list = [...S.students.values()];
+  const taken = new Set();
+  let ord = nextOrd(), added = 0, updated = 0, skipped = 0;
+  rows.forEach(r => {
+    const match = list.find(s => !taken.has(s.id) && s.name === r.name && (!r.cls || !s.cls || s.cls === r.cls));
+    if (match){
+      taken.add(match.id);
+      if (r.en && r.en !== match.en){ patchStudent(match.id, { en: r.en }); updated++; }
+      else skipped++;
+      return;
+    }
+    const id = createStudent(r.cls, r.name, ord++, r.en);
+    list.push({ id, cls: r.cls, name: r.name, en: r.en }); taken.add(id); added++;
+  });
+  $('#importText').value = '';
+  const bits = [];
+  if (added) bits.push(`新增 ${added} 位（在「待分組」）`);
+  if (updated) bits.push(`補上 ${updated} 位英文名`);
+  if (skipped) bits.push(`${skipped} 位已在名單上`);
+  showToast(bits.join('，') || '沒有需要更新的資料');
+});
+$('#reasonsInput').addEventListener('change', e => {
+  const list = e.target.value.split(/[、,，;；\n]+/).map(x => x.trim()).filter(Boolean).slice(0, 12);
+  patchSettings({ reasons: list });
+  showToast('已更新加分理由');
+});
+$('#reasonsInput').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); e.target.blur(); } });
+$('#resetPts').addEventListener('click', async () => {
+  if (!S.ready || !S.students.size) return;
+  if (!(await confirmBox('積分全部歸零？', '所有學生的積分和加分紀錄都會清空，適合新學期開始時使用。', '全部歸零'))) return;
+  const prev = [...S.students.values()].map(s => ({ id: s.id, pts: s.pts, hist: s.hist }));
+  prev.forEach(p => patchStudent(p.id, { pts: 0, hist: [] }));
+  showToast('積分已全部歸零', () => prev.forEach(p => patchStudent(p.id, { pts: p.pts, hist: p.hist })));
+});
+$('#clearGroups').addEventListener('click', async () => {
+  if (!S.ready || !S.students.size) return;
+  if (!(await confirmBox('全部移到待分組？', '每位學生都會離開目前的組，積分不受影響。', '全部移出'))) return;
+  const prev = snapshotGroups();
+  S.students.forEach(s => { if (s.grp) patchStudent(s.id, { grp: '' }); });
+  showToast('已全部移到待分組', () => restoreGroups(prev));
+});
+
+/* backup */
+function downloadBackup(){
+  if (!S.ready) return;
+  const d = new Date(), p = n => String(n).padStart(2, '0');
+  const data = { app: 'xiangshan-groups', version: 1, exportedAt: d.toISOString(),
+    settings: S.settings, students: [...S.students.values()].sort((a, b) => a.ord - b.ord) };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `香山國小分組-備份-${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}.json`;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  showToast('備份檔已下載');
+}
+async function importBackupFile(file){
+  if (!file || !S.ready) return;
+  let o;
+  try { o = JSON.parse(await file.text()); } catch (e) { showToast('這個檔案讀不出來，請選「下載備份檔」存下來的 .json 檔', null, true); return; }
+  const list = Array.isArray(o && o.students) ? o.students.filter(x => x && x.name) : [];
+  if (!list.length){ showToast('備份檔裡沒有學生資料', null, true); return; }
+  const same = list.filter(x => x.id && S.students.has(String(x.id))).length;
+  const body = same
+    ? `備份檔有 ${list.length} 位學生，其中 ${same} 位已在系統裡，會換成備份檔的資料（積分、分組、紀錄都會被取代）。`
+    : `會加入 ${list.length} 位學生，連同分組、積分和加分紀錄。`;
+  if (!(await confirmBox('匯入備份檔？', body, '匯入'))) return;
+  list.forEach(x => {
+    const id = /^[A-Za-z0-9_-]{1,60}$/.test(String(x.id || '')) ? String(x.id) : uid('s');
+    const n = normStudent(id, x);
+    write('students/' + id, 'set', { cls: n.cls.slice(0, 8), name: n.name.slice(0, 12), en: cleanEn(n.en), pts: n.pts,
+      absent: n.absent, lead: n.lead, grp: n.grp, ord: n.ord, hist: n.hist.filter(Boolean).slice(-HIST_MAX) });
+  });
+  if (o.settings) write('settings/main', 'set', normSettings(o.settings));
+  showToast(`已匯入 ${list.length} 位學生`);
+}
+$('#exportBtn').addEventListener('click', downloadBackup);
+$('#importFile').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; importBackupFile(f); });
+board.addEventListener('change', e => { if (e.target.matches('.importFileAlt')){ const f = e.target.files[0]; e.target.value = ''; importBackupFile(f); } });
+
+/* ---------- boot ---------- */
+(async function boot(){
+  try { const t = localStorage.getItem(LS_KEY + '-tab'); if (t === 'rank' || t === 'roster') setTab(t); } catch (e) {}
+  render();
+  const cfg = window.FIREBASE_CONFIG, opts = window.APP_OPTIONS || {};
+  const goLocal = msg => { S.mode = 'local'; loadLocal(); S.ready = true; derive(); showBanner(msg); syncUI(); scheduleRender(); };
+  if (!configReady(cfg)){
+    goLocal('<div><b>還沒連上 Firebase。</b>請照說明把 Firebase 設定貼進 <code>firebase-config.js</code>。在那之前，這裡的資料只會存在這台裝置。</div>');
+    return;
+  }
+  try {
+    const base = `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/`;
+    const [appMod, F] = await Promise.all([import(base + 'firebase-app.js'), import(base + 'firebase-firestore.js')]);
+    const app = appMod.initializeApp(cfg);
+    if (opts.requireLogin){
+      const A = await import(base + 'firebase-auth.js');
+      await waitForLogin(app, A, opts);
+    }
+    let fs;
+    try { fs = F.initializeFirestore(app, { ignoreUndefinedProperties: true, localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) }); }
+    catch (e) { fs = F.getFirestore(app); }
+    db = makeDb(fs, F);
+    S.mode = 'db'; subscribe();
+  } catch (e) {
+    goLocal('<div><b>連不上 Firebase：</b>' + esc(e && e.message || '未知的錯誤') + '。請檢查網路，或確認 <code>firebase-config.js</code> 貼的設定正確。</div>');
+    return;
+  }
+  syncUI(); scheduleRender();
+})();
+})();
+</script>
+
+</body>
+</html>

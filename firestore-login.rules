@@ -1,0 +1,47 @@
+rules_version = '2';
+
+// 香山國小分組積分系統：Firestore 規則（登入版）
+// 只有下面名單裡的 Google 帳號登入後才能讀寫。
+// 使用這份規則時，firebase-config.js 的 requireLogin 要改成 true，
+// 並在 Firebase 的 Authentication 開啟 Google 登入（見 README 第 8 步）。
+// 要加其他老師：在 teachers() 的清單裡加上他們的 Gmail（小寫）。
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function teachers() {
+      return ['dronex666666@gmail.com'];
+    }
+
+    function isTeacher() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower() in teachers();
+    }
+
+    function validStudent(d) {
+      return d.keys().hasOnly(['cls', 'name', 'en', 'pts', 'absent', 'lead', 'grp', 'ord', 'hist'])
+        && d.name is string && d.name.size() > 0 && d.name.size() <= 12
+        && (!('cls' in d) || (d.cls is string && d.cls.size() <= 8))
+        && (!('en' in d) || (d.en is string && d.en.size() <= 20))
+        && d.pts is number
+        && (!('grp' in d) || (d.grp is string && d.grp.size() <= 3))
+        && (!('hist' in d) || (d.hist is list && d.hist.size() <= 40));
+    }
+
+    function validSettings(d) {
+      return d.keys().hasOnly(['groupCount', 'method', 'names', 'reasons'])
+        && d.groupCount is int && d.groupCount >= 2 && d.groupCount <= 8;
+    }
+
+    match /students/{id} {
+      allow read, delete: if isTeacher();
+      allow create, update: if isTeacher() && validStudent(request.resource.data);
+    }
+
+    match /settings/{id} {
+      allow read: if isTeacher();
+      allow create, update: if isTeacher() && id == 'main' && validSettings(request.resource.data);
+    }
+  }
+}
