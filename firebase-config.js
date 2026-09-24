@@ -1,20 +1,19 @@
 // ============================================================
 // 香山國小分組積分系統：Firebase 設定
 // ------------------------------------------------------------
-// 1. 到 Firebase 主控台 → 專案設定 → 一般 → 你的應用程式（網頁 </>）
-// 2. 找到「SDK 設定和配置」裡的 firebaseConfig，
-//    把大括號裡的內容整段貼進下面，取代 "請貼上…" 那幾行。
+// Firebase 專案：xiangshan-groups（Firestore 位置 asia-east1 台灣）
+// 設定來源：Firebase 主控台 → 專案設定 → 一般 → 你的應用程式「香山國小分組系統」
 // 這些值不是密碼，放在 GitHub 上是正常的；
 // 資料能不能被讀寫，是由 Firestore 的「規則」決定。
 // ============================================================
 
 window.FIREBASE_CONFIG = {
-  apiKey: "請貼上 apiKey",
-  authDomain: "請貼上 authDomain",
-  projectId: "請貼上 projectId",
-  storageBucket: "請貼上 storageBucket",
-  messagingSenderId: "請貼上 messagingSenderId",
-  appId: "請貼上 appId"
+  apiKey: "AIzaSyBHzoQkCYQbynkZ2CcvwqN1vyHvxyDe6F8",
+  authDomain: "xiangshan-groups.firebaseapp.com",
+  projectId: "xiangshan-groups",
+  storageBucket: "xiangshan-groups.firebasestorage.app",
+  messagingSenderId: "911951215521",
+  appId: "1:911951215521:web:c4b14496f1b7e22128a9e0"
 };
 
 // ============================================================
