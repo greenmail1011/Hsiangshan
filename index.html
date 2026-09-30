@@ -28,6 +28,14 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0}
 img{max-width:100%}
 [hidden]{display:none!important}
+.clubs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.clubs button{height:34px;padding:0 16px;border-radius:999px;border:1px solid var(--line-strong);background:var(--surface);font-weight:700;font-size:14px;color:var(--muted)}
+.clubs button:hover{border-color:var(--faint);color:var(--ink)}
+.clubs button[aria-current="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.clubs .club-note{align-self:center;font-size:12px;color:var(--faint);margin-left:4px}
+body.nogroups .controls,body.nogroups .col-grp,body.nogroups .col-lead,body.nogroups #standingsSec,body.nogroups .sh-move{display:none!important}
+.allcard{--tc:var(--accent)}
+.allcard .members{grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr))}
 .banner{display:flex;align-items:flex-start;gap:10px;background:#FFF6DA;border:1px solid #F1D27A;color:#5C4300;border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:14px}
 .banner b{font-weight:700}
 .userbox{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
@@ -289,6 +297,7 @@ textarea.in{height:auto;min-height:130px;padding:10px;resize:vertical;line-heigh
 
 <div class="wrap">
   <div class="banner" id="banner" hidden></div>
+  <nav class="clubs" id="clubNav" aria-label="切換社團" hidden></nav>
   <header class="top">
     <div class="brand">
       <svg class="mark" viewBox="0 0 42 42" aria-hidden="true">
@@ -299,7 +308,7 @@ textarea.in{height:auto;min-height:130px;padding:10px;resize:vertical;line-heigh
       </svg>
       <div>
         <p class="eyebrow">AI 足球無人機社團</p>
-        <h1>香山國小 分組積分</h1>
+        <h1 id="pageTitle">香山國小 分組積分</h1>
       </div>
     </div>
     <nav class="tabs" role="tablist" aria-label="切換畫面">
@@ -333,12 +342,14 @@ textarea.in{height:auto;min-height:130px;padding:10px;resize:vertical;line-heigh
         <button class="btn primary" id="regroup">重新分組</button>
       </div>
       <div id="board"><div class="state">載入名單中…</div></div>
-      <p class="tip">點名字：加分、取消加分、換組、標記缺席。名字旁的「+英文」點一下就能輸入英文名（按 Tab 跳下一位）。拖曳名字可直接換組（平板或手機請長按再拖）。</p>
+      <p class="tip" id="boardTip"></p>
     </section>
 
     <section id="view-rank" class="view" role="tabpanel" aria-labelledby="tab-rank" hidden>
-      <h2 class="sec">各組總分 <span class="muted">組員個人積分加總</span></h2>
-      <div id="standings" class="standings"></div>
+      <div id="standingsSec">
+        <h2 class="sec">各組總分 <span class="muted">組員個人積分加總</span></h2>
+        <div id="standings" class="standings"></div>
+      </div>
       <div class="rank-head">
         <h2 class="sec">個人積分</h2>
         <div class="seg" role="radiogroup" aria-label="排序" id="rankSort">
@@ -349,7 +360,7 @@ textarea.in{height:auto;min-height:130px;padding:10px;resize:vertical;line-heigh
       </div>
       <div class="table-wrap">
         <table class="rank">
-          <thead><tr><th>名次</th><th>姓名</th><th>班級</th><th>組別</th><th class="r">今日</th><th class="r">總分</th><th class="r">加減分</th></tr></thead>
+          <thead><tr><th>名次</th><th>姓名</th><th>班級</th><th class="col-grp">組別</th><th class="r">今日</th><th class="r">總分</th><th class="r">加減分</th></tr></thead>
           <tbody id="rankBody"></tbody>
         </table>
       </div>
@@ -371,7 +382,7 @@ textarea.in{height:auto;min-height:130px;padding:10px;resize:vertical;line-heigh
           </form>
           <div class="table-wrap">
             <table class="roster">
-              <thead><tr><th>班級</th><th>姓名</th><th>英文名</th><th class="r">積分</th><th>小組長</th><th>出缺席</th><th></th></tr></thead>
+              <thead><tr><th>班級</th><th>姓名</th><th>英文名</th><th class="r">積分</th><th class="col-lead">小組長</th><th>出缺席</th><th></th></tr></thead>
               <tbody id="rosterBody"></tbody>
             </table>
           </div>
@@ -454,13 +465,13 @@ const $$ = s => [...document.querySelectorAll(s)];
 
 /* ---------- state ---------- */
 let db = null;
-const base = { students: new Map(), settings: null };   // server truth (or local)
+const base = { students: new Map(), clubs: new Map() };  // server truth (or local): students of the current club, settings of every club
 const queues = new Map();                               // path -> {busy, ops[]}
 let inflight = 0;
 const S = {
   mode: 'loading', ready: false,
   students: new Map(), settings: normSettings(null),
-  tab: 'groups', rankSort: 'total',
+  club: 'main', clubs: [], tab: 'groups', rankSort: 'total',
   sheetId: null, sheetReason: '', sheetReturn: null, enEditId: null,
   error: null, undo: null
 };
@@ -470,7 +481,19 @@ const bumps = new Map();
 const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const grade = s => GRADE[(s.cls || '').trim()[0]] || 0;
+const grade = s => { const c = (s.cls || '').trim()[0] || ''; return GRADE[c] || (/[1-6]/.test(c) ? Number(c) : 0); };
+/* clubs (社團): settings/{club} holds each club's settings and name; 香山 ('main') keeps its students at /students, other clubs at /clubs/{club}/students */
+const CLUB_DEFAULTS = { main: { name: '香山國小', groups: true, ord: 1 } };
+const settingsPath = c => 'settings/' + c;
+const studentsColl = c => c === 'main' ? 'students' : 'clubs/' + c + '/students';
+const studentPath = id => studentsColl(S.club) + '/' + id;
+function clubInfo(id, d){
+  const def = CLUB_DEFAULTS[id] || {}; d = d || {};
+  return { id, name: String(d.name || def.name || id), groups: d.groups === undefined ? (def.groups !== undefined ? def.groups : true) : !!d.groups,
+    ord: Number(d.ord !== undefined ? d.ord : (def.ord !== undefined ? def.ord : 99)) };
+}
+const curClub = () => S.clubs.find(c => c.id === S.club) || clubInfo(S.club, base.clubs.get(S.club));
+const groupsOn = () => curClub().groups;
 const gIndex = g => { const k = parseInt(String(g || '').slice(1), 10); return Number.isFinite(k) ? k : 0; };
 const inGroup = s => !!s.grp && gIndex(s.grp) >= 1 && gIndex(s.grp) <= S.settings.groupCount;
 const groupName = g => ((S.settings.names[g] || '').trim()) || `第${gIndex(g)}組`;
@@ -506,21 +529,28 @@ function applyOp(cur, op){
   return cur ? { ...cur, ...op.data } : null;
 }
 function derive(){
-  const st = new Map(base.students); let set = base.settings;
+  const sp = settingsPath(S.club), pre = studentsColl(S.club) + '/';
+  const st = new Map(base.students); let set = base.clubs.get(S.club) || null;
   for (const [path, q] of queues){
     for (const op of q.ops){
-      if (path === 'settings/main') set = applyOp(set, op);
-      else { const id = path.slice(9); const r = applyOp(st.get(id) || null, op); if (r) st.set(id, r); else st.delete(id); }
+      if (path === sp) set = applyOp(set, op);
+      else if (path.startsWith(pre) && path.indexOf('/', pre.length) === -1){
+        const id = path.slice(pre.length); const r = applyOp(st.get(id) || null, op); if (r) st.set(id, r); else st.delete(id);
+      }
     }
   }
   S.students = new Map([...st].map(([id, d]) => [id, normStudent(id, d)]));
   S.settings = normSettings(set);
+  const ids = new Set(['main', ...base.clubs.keys()]);
+  S.clubs = [...ids].map(id => clubInfo(id, id === S.club ? set : base.clubs.get(id)))
+    .sort((x, y) => x.ord - y.ord || x.name.localeCompare(y.name, 'zh-Hant'));
 }
 function write(path, kind, data){
   if (S.mode === 'local'){
     const op = { kind, data };
-    if (path === 'settings/main') base.settings = applyOp(base.settings, op);
-    else { const id = path.slice(9); const r = applyOp(base.students.get(id) || null, op); if (r) base.students.set(id, r); else base.students.delete(id); }
+    const sp = settingsPath(S.club), pre = studentsColl(S.club) + '/';
+    if (path === sp) base.clubs.set(S.club, applyOp(base.clubs.get(S.club) || null, op));
+    else if (path.startsWith(pre)){ const id = path.slice(pre.length); const r = applyOp(base.students.get(id) || null, op); if (r) base.students.set(id, r); else base.students.delete(id); }
     saveLocal(); derive(); scheduleRender(); return;
   }
   if (S.mode !== 'db') return;
@@ -560,31 +590,66 @@ function writeFailed(e){
   S.error = msg; showToast(msg, null, true);
 }
 function saveLocal(){
-  try { localStorage.setItem(LS_KEY, JSON.stringify({ students: [...base.students].map(([id, d]) => ({ id, ...d })), settings: base.settings })); } catch (e) {}
+  try { localStorage.setItem(LS_KEY, JSON.stringify({ students: [...base.students].map(([id, d]) => ({ id, ...d })), settings: base.clubs.get('main') || null })); } catch (e) {}
 }
 function loadLocal(){
   try {
     const raw = localStorage.getItem(LS_KEY); if (!raw) return;
     const o = JSON.parse(raw);
     base.students = new Map((o.students || []).map(s => { const { id, ...rest } = s; return [id, rest]; }));
-    base.settings = o.settings || null;
+    if (o.settings) base.clubs.set('main', o.settings);
   } catch (e) {}
 }
 
 /* ---------- subscriptions ---------- */
-let unsubs = [];
+let unsubClubs = null, unsubStudents = null, gotClubs = false, gotStudents = false;
+function markReady(){ if (gotClubs && gotStudents && !S.ready){ S.ready = true; } }
 function subscribe(){
-  unsubs.forEach(u => { try { u(); } catch (e) {} }); unsubs = [];
-  let gotA = false, gotB = false;
-  const ready = () => { if (gotA && gotB && !S.ready){ S.ready = true; } };
-  unsubs.push(db.collection('students').onSnapshot(snap => {
+  if (unsubClubs) try { unsubClubs(); } catch (e) {}
+  unsubClubs = db.collection('settings').onSnapshot(snap => {
+    base.clubs = new Map(snap.docs.map(d => [d.id, d.data()]));
+    gotClubs = true;
+    if (S.club !== 'main' && !base.clubs.has(S.club)){ switchClub('main'); return; }
+    markReady(); derive(); applyClubUI(); scheduleRender(); syncUI();
+  }, subErr);
+  subscribeStudents();
+}
+function subscribeStudents(){
+  if (unsubStudents) try { unsubStudents(); } catch (e) {}
+  gotStudents = false;
+  const club = S.club;
+  unsubStudents = db.collection(studentsColl(club)).onSnapshot(snap => {
+    if (club !== S.club) return;
     base.students = new Map(snap.docs.map(d => [d.id, d.data()]));
-    gotA = true; ready(); derive(); scheduleRender(); syncUI();
-  }, subErr));
-  unsubs.push(db.doc('settings/main').onSnapshot(snap => {
-    base.settings = snap.exists ? snap.data() : null;
-    gotB = true; ready(); derive(); scheduleRender(); syncUI();
-  }, subErr));
+    gotStudents = true; markReady(); derive(); scheduleRender(); syncUI();
+  }, subErr);
+}
+function switchClub(id){
+  if (!id || id === S.club) return;
+  if (S.mode === 'local' && id !== 'main') return;
+  if (S.sheetId) closeSheet();
+  S.club = id; S.enEditId = null; S.undo = null;
+  try { localStorage.setItem(LS_KEY + '-club', id); } catch (e) {}
+  const h = id === 'main' ? '' : '#' + id;
+  if (location.hash !== h) try { history.replaceState(null, '', location.pathname + location.search + h); } catch (e) {}
+  base.students = new Map();
+  if (S.mode === 'db'){ S.ready = false; subscribeStudents(); }
+  derive(); applyClubUI();
+  if (!groupsOn() && S.tab === 'groups') { /* the 學生 view replaces 分組 */ }
+  render();
+}
+function applyClubUI(){
+  const c = curClub(), on = c.groups;
+  document.body.classList.toggle('nogroups', !on);
+  $('#pageTitle').textContent = `${c.name} ${on ? '分組積分' : '積分'}`;
+  document.title = `${c.name}${on ? '分組系統' : '積分系統'}`;
+  $('#tab-groups').textContent = on ? '分組' : '學生';
+  $('#boardTip').textContent = on
+    ? '點名字：加分、取消加分、換組、標記缺席。名字旁的「+英文」點一下就能輸入英文名（按 Tab 跳下一位）。拖曳名字可直接換組（平板或手機請長按再拖）。'
+    : '點名字：加分、取消加分、標記缺席。名字旁的「+英文」點一下就能輸入英文名（按 Tab 跳下一位）。';
+  const nav = $('#clubNav');
+  nav.hidden = S.clubs.length < 2;
+  nav.innerHTML = S.clubs.map(x => `<button data-club="${esc(x.id)}" aria-current="${x.id === S.club}">${esc(x.name)}</button>`).join('');
 }
 function subErr(e){
   const code = e && e.code;
@@ -658,12 +723,12 @@ function waitForLogin(app, A, opts){
 }
 
 /* ---------- actions ---------- */
-function patchStudent(id, patch){ write('students/' + id, 'update', patch); }
+function patchStudent(id, patch){ write(studentPath(id), 'update', patch); }
 function patchSettings(patch){
-  const q = queues.get('settings/main');
-  const exists = base.settings || (q && q.ops.some(o => o.kind === 'set'));
-  if (exists) write('settings/main', 'update', patch);
-  else write('settings/main', 'set', { ...S.settings, ...patch });
+  const sp = settingsPath(S.club), q = queues.get(sp);
+  const exists = base.clubs.has(S.club) || (q && q.ops.some(o => o.kind === 'set'));
+  if (exists) write(sp, 'update', patch);
+  else { const c = curClub(); write(sp, 'set', { ...S.settings, name: c.name, groups: c.groups, ord: c.ord, ...patch }); }
 }
 function addPoints(ids, delta, reason, extra){
   const now = Date.now(); const prev = [];
@@ -682,6 +747,12 @@ function scoreOne(id, delta, reason){
   showToast(`${s.name} ${signed(delta)}${reason ? ' · ' + reason : ''}`, undo);
 }
 function scoreGroup(g){
+  if (g === '*'){
+    const ids = [...S.students.values()].filter(s => !s.absent).map(s => s.id);
+    if (!ids.length) return;
+    const undo = addPoints(ids, 1, '全班加分', { g: '*', b: uid('b') });
+    showToast(`全班 +1（${ids.length} 人）`, undo); return;
+  }
   const ids = [...S.students.values()].filter(s => s.grp === g && !s.absent).map(s => s.id);
   if (!ids.length) return;
   const undo = addPoints(ids, 1, '全組加分', { g, b: uid('b') });
@@ -784,15 +855,16 @@ function renameGroup(g, val){
 function nextOrd(){ let m = 0; S.students.forEach(s => { if (s.ord > m) m = s.ord; }); return m + 1; }
 function createStudent(cls, name, ord, en){
   const id = uid('s');
-  write('students/' + id, 'set', { cls, name, en: en || '', pts: 0, absent: false, grp: '', ord: ord ?? nextOrd(), hist: [] });
+  write(studentPath(id), 'set', { cls, name, en: en || '', pts: 0, absent: false, grp: '', ord: ord ?? nextOrd(), hist: [] });
   return id;
 }
 function deleteStudent(id){
   const s = S.students.get(id); if (!s) return;
   const { id: _, ...data } = s;
-  write('students/' + id, 'delete', null);
+  const path = studentPath(id);
+  write(path, 'delete', null);
   if (S.sheetId === id) closeSheet();
-  showToast(`已刪除 ${s.name}`, () => write('students/' + id, 'set', data));
+  showToast(`已刪除 ${s.name}`, () => write(path, 'set', data));
 }
 function looksLikeClass(t){ return /^[一二三四五六1-6][^\s]{0,3}$/.test(t) && t.length <= 4; }
 const isLatin = t => /^[A-Za-z][A-Za-z.'’\-]*(?: [A-Za-z][A-Za-z.'’\-]*)*$/.test(t);
@@ -911,6 +983,17 @@ function renderGroups(){
     return;
   }
   const t0 = todayStart();
+  if (!groupsOn()){
+    const list = sortRoster(all.slice());
+    const total = list.reduce((a, s) => a + s.pts, 0), today = list.reduce((a, s) => a + todayPts(s, t0), 0);
+    board.innerHTML = `<article class="group allcard">
+      <header class="g-head"><h3 class="gtitle">全部學生</h3><span class="count">${list.length} 人${present < list.length ? `，出席 ${present}` : ''}</span></header>
+      <div class="g-score"><span class="total">${total}</span><span class="unit">分</span>${today ? `<span class="today${today < 0 ? ' neg' : ''}">今日 ${signed(today)}</span>` : ''}
+        <button class="btn sm" data-act="gplus" data-g="*"${present ? '' : ' disabled'}>全班 +1</button></div>
+      <ul class="members">${list.map(chipHTML).join('')}</ul>
+    </article>`;
+    return;
+  }
   let html = '<div class="groups">';
   for (let i = 1; i <= n; i++){
     const g = 'g' + i;
@@ -947,7 +1030,7 @@ function renderRank(){
   const body = $('#rankBody'), stand = $('#standings');
   $$('#rankSort [data-sort]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.sort === S.rankSort)));
   if (!S.ready){ stand.innerHTML = ''; body.innerHTML = '<tr><td colspan="7" class="muted">讀取名單中…</td></tr>'; return; }
-  const all = [...S.students.values()], t0 = todayStart(), n = S.settings.groupCount;
+  const all = [...S.students.values()], t0 = todayStart(), n = groupsOn() ? S.settings.groupCount : 0;
   const gs = [];
   for (let i = 1; i <= n; i++){
     const g = 'g' + i, m = all.filter(s => s.grp === g);
@@ -971,7 +1054,7 @@ function renderRank(){
       <td class="rkn${r <= 3 && s.pts > 0 ? ' rk-top' : ''}">${r}</td>
       <td><button class="namebtn" data-act="open" data-id="${esc(s.id)}">${esc(s.name)}</button>${enHTML(s)}${s.absent ? '<span class="pill">缺席</span>' : ''}</td>
       <td class="muted">${esc(s.cls) || '—'}</td>
-      <td>${gi ? `<span class="gtag" style="${teamVars(gi)}"><span class="bib xs" aria-hidden="true">${gi}</span>${esc(groupName(s.grp))}</span>` : '<span class="dim">待分組</span>'}</td>
+      <td class="col-grp">${gi ? `<span class="gtag" style="${teamVars(gi)}"><span class="bib xs" aria-hidden="true">${gi}</span>${esc(groupName(s.grp))}</span>` : '<span class="dim">待分組</span>'}</td>
       <td class="r tnum ${s.td ? '' : 'dim'}">${s.td ? signed(s.td) : '—'}</td>
       <td class="r big">${s.pts}</td>
       <td><div class="acts"><button class="mini neg" data-act="minus" data-id="${esc(s.id)}" aria-label="${esc(s.name)} 減 1 分">−1</button><button class="mini pos" data-act="plus" data-id="${esc(s.id)}" aria-label="${esc(s.name)} 加 1 分">+1</button></div></td>
@@ -994,7 +1077,9 @@ function renderLog(){
   const list = [...rows.values()].sort((a, b) => b.t - a.t);
   $('#todayLog').innerHTML = list.length ? list.map(r => {
     let who;
-    if (r.g){
+    if (r.g === '*'){
+      who = `<b>全班</b><span>${r.people.length} 人</span>`;
+    } else if (r.g){
       const i = gIndex(r.g);
       who = `<span class="bib xs" style="${teamVars(i)}" aria-hidden="true">${i}</span><b>${esc(groupName(r.g))} 全組</b><span>${r.people.map(p => esc(p.name)).join('、')}</span>`;
     } else {
@@ -1013,7 +1098,7 @@ function renderRosterBody(){
       <td><input class="cell name" id="r-name-${esc(s.id)}" data-field="name" value="${esc(s.name)}" maxlength="12" aria-label="姓名"></td>
       <td><input class="cell en-in" id="r-en-${esc(s.id)}" data-field="en" value="${esc(s.en)}" maxlength="20" placeholder="輸入英文名" autocapitalize="words" spellcheck="false" aria-label="${esc(s.name)} 的英文名"></td>
       <td class="r big">${s.pts}</td>
-      <td><label class="check lead"><input type="checkbox" id="r-lead-${esc(s.id)}" data-field="lead"${s.lead ? ' checked' : ''}>組長</label></td>
+      <td class="col-lead"><label class="check lead"><input type="checkbox" id="r-lead-${esc(s.id)}" data-field="lead"${s.lead ? ' checked' : ''}>組長</label></td>
       <td><label class="check"><input type="checkbox" id="r-abs-${esc(s.id)}" data-field="absent"${s.absent ? ' checked' : ''}>缺席</label></td>
       <td class="r"><button class="linkbtn" data-act="del">刪除</button></td>
     </tr>`).join('') : '<tr><td colspan="7" class="muted">名單是空的，可以在上方新增，或從右邊貼上整份名單。</td></tr>';
@@ -1027,7 +1112,7 @@ function renderSheet(){
   const s = S.students.get(S.sheetId);
   if (!s){ closeSheet(); return; }
   const t0 = todayStart(), td = todayPts(s, t0), n = S.settings.groupCount;
-  const gi = inGroup(s) ? gIndex(s.grp) : 0;
+  const gi = groupsOn() && inGroup(s) ? gIndex(s.grp) : 0;
   const reasons = S.settings.reasons;
   let mv = '';
   for (let i = 1; i <= n; i++){
@@ -1042,13 +1127,13 @@ function renderSheet(){
   sb.innerHTML = `
     <header class="sh-head">
       <span class="bib"${gi ? ` style="${teamVars(gi)}"` : ' style="--tc:var(--surface-2);--tc-ink:var(--muted)"'} aria-hidden="true">${gi || '–'}</span>
-      <div><h2 id="sheetName">${esc(s.name)}</h2><input class="sh-en" id="sheetEn" value="${esc(s.en)}" maxlength="20" placeholder="＋ 輸入英文名" autocomplete="off" autocapitalize="words" spellcheck="false" aria-label="${esc(s.name)} 的英文名"><p class="muted">${esc(s.cls)}${s.cls ? ' · ' : ''}${gi ? esc(groupName(s.grp)) : '待分組'}</p></div>
+      <div><h2 id="sheetName">${esc(s.name)}</h2><input class="sh-en" id="sheetEn" value="${esc(s.en)}" maxlength="20" placeholder="＋ 輸入英文名" autocomplete="off" autocapitalize="words" spellcheck="false" aria-label="${esc(s.name)} 的英文名"><p class="muted">${esc(s.cls)}${groupsOn() ? (s.cls ? ' · ' : '') + (gi ? esc(groupName(s.grp)) : '待分組') : ''}</p></div>
       <button class="icon-btn" data-close aria-label="關閉">×</button>
     </header>
     <div class="sh-score"><span class="total">${s.pts}</span><span class="unit">分</span>${td ? `<span class="today${td < 0 ? ' neg' : ''}">今日 ${signed(td)}</span>` : ''}${s.absent ? '<span class="pill">今天缺席</span>' : ''}</div>
     ${reasons.length ? `<section class="sh-sec"><h3>加分理由（可不選）</h3><div class="reasons">${reasons.map(r => `<button class="rchip" data-reason="${esc(r)}" aria-pressed="${S.sheetReason === r}">${esc(r)}</button>`).join('')}</div></section>` : ''}
     <div class="deltas">${[-1, 1, 2, 3, 5].map(d => `<button class="delta ${d < 0 ? 'neg' : 'pos'}" data-delta="${d}" aria-label="${d < 0 ? '減' : '加'} ${Math.abs(d)} 分">${signed(d)}</button>`).join('')}</div>
-    <section class="sh-sec"><h3>移到</h3><div class="moveto">${mv}</div></section>
+    <section class="sh-sec sh-move"><h3>移到</h3><div class="moveto">${mv}</div></section>
     <section class="sh-sec row-between"><h3>今天出缺席</h3><button class="toggle" data-act="absent" aria-pressed="${s.absent}">${s.absent ? '缺席（按一下改出席）' : '出席'}</button></section>
     <section class="sh-sec"><h3>最近紀錄</h3>${hist.length ? `<ol class="hist">${hist.map(h => `<li><span class="when">${fmtTime(h.t)}</span><span>${esc(h.r || (h.d < 0 ? '扣分' : '加分'))}</span><span class="d ${h.d < 0 ? 'neg' : 'pos'}">${signed(Number(h.d) || 0)}</span><button class="rec-cancel" data-cancel="${esc(h.k)}" aria-label="取消這筆 ${signed(Number(h.d) || 0)}">取消</button></li>`).join('')}</ol>` : '<p class="muted" style="margin:0;font-size:13.5px">還沒有紀錄</p>'}</section>`;
 }
@@ -1150,7 +1235,7 @@ $('#view-rank').addEventListener('click', e => {
   const rc = e.target.closest('[data-row]');
   if (rc){
     const r = logRows.get(rc.dataset.row); if (!r) return;
-    const label = r.g ? `${groupName(r.g)} 全組 ${signed(r.d)}（${r.items.length} 人）` : recordLabel(r.people[0], { d: r.d, r: r.reason });
+    const label = r.g === '*' ? `全班 ${signed(r.d)}（${r.items.length} 人）` : r.g ? `${groupName(r.g)} 全組 ${signed(r.d)}（${r.items.length} 人）` : recordLabel(r.people[0], { d: r.d, r: r.reason });
     cancelRecords(r.items, label); return;
   }
   const b = e.target.closest('[data-act]'); if (!b || !b.dataset.id) return;
@@ -1196,7 +1281,7 @@ let pd = null, dragging = null;
 board.addEventListener('pointerdown', e => {
   if (e.pointerType === 'mouse' && e.button !== 0) return;
   const chip = e.target.closest('.chip');
-  if (!chip || e.target.closest('.chip-plus, .en-btn, .en-add, .en-input') || !S.ready) return;
+  if (!chip || e.target.closest('.chip-plus, .en-btn, .en-add, .en-input') || !S.ready || !groupsOn()) return;
   pd = { id: chip.dataset.id, chip, x: e.clientX, y: e.clientY, type: e.pointerType, timer: 0 };
   if (e.pointerType === 'touch') pd.timer = setTimeout(() => { if (pd) startDrag(pd.x, pd.y); }, 320);
 });
@@ -1325,12 +1410,13 @@ $('#clearGroups').addEventListener('click', async () => {
 function downloadBackup(){
   if (!S.ready) return;
   const d = new Date(), p = n => String(n).padStart(2, '0');
-  const data = { app: 'xiangshan-groups', version: 1, exportedAt: d.toISOString(),
+  const c = curClub();
+  const data = { app: 'xiangshan-groups', version: 1, exportedAt: d.toISOString(), club: c.id, clubName: c.name,
     settings: S.settings, students: [...S.students.values()].sort((a, b) => a.ord - b.ord) };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `香山國小分組-備份-${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}.json`;
+  a.download = `${c.name}${c.groups ? '分組' : '積分'}-備份-${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}.json`;
   document.body.appendChild(a); a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
   showToast('備份檔已下載');
@@ -1342,6 +1428,8 @@ async function importBackupFile(file){
   const list = Array.isArray(o && o.students) ? o.students.filter(x => x && x.name) : [];
   if (!list.length){ showToast('備份檔裡沒有學生資料', null, true); return; }
   const same = list.filter(x => x.id && S.students.has(String(x.id))).length;
+  const cName = curClub().name;
+  if (o.clubName && o.clubName !== cName && !(await confirmBox('要匯入到這個社團嗎？', `這是「${o.clubName}」的備份檔，目前開著的是「${cName}」。`, `匯入到${cName}`))) return;
   const body = same
     ? `備份檔有 ${list.length} 位學生，其中 ${same} 位已在系統裡，會換成備份檔的資料（積分、分組、紀錄都會被取代）。`
     : `會加入 ${list.length} 位學生，連同分組、積分和加分紀錄。`;
@@ -1349,22 +1437,34 @@ async function importBackupFile(file){
   list.forEach(x => {
     const id = /^[A-Za-z0-9_-]{1,60}$/.test(String(x.id || '')) ? String(x.id) : uid('s');
     const n = normStudent(id, x);
-    write('students/' + id, 'set', { cls: n.cls.slice(0, 8), name: n.name.slice(0, 12), en: cleanEn(n.en), pts: n.pts,
+    write(studentPath(id), 'set', { cls: n.cls.slice(0, 8), name: n.name.slice(0, 12), en: cleanEn(n.en), pts: n.pts,
       absent: n.absent, lead: n.lead, grp: n.grp, ord: n.ord, hist: n.hist.filter(Boolean).slice(-HIST_MAX) });
   });
-  if (o.settings) write('settings/main', 'set', normSettings(o.settings));
+  if (o.settings){
+    const ns = normSettings(o.settings);
+    if (base.clubs.has(S.club)) write(settingsPath(S.club), 'update', ns);
+    else { const c = curClub(); write(settingsPath(S.club), 'set', { ...ns, name: c.name, groups: c.groups, ord: c.ord }); }
+  }
   showToast(`已匯入 ${list.length} 位學生`);
 }
 $('#exportBtn').addEventListener('click', downloadBackup);
 $('#importFile').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; importBackupFile(f); });
 board.addEventListener('change', e => { if (e.target.matches('.importFileAlt')){ const f = e.target.files[0]; e.target.value = ''; importBackupFile(f); } });
 
+$('#clubNav').addEventListener('click', e => { const b = e.target.closest('[data-club]'); if (b) switchClub(b.dataset.club); });
+window.addEventListener('hashchange', () => { const h = decodeURIComponent(location.hash.slice(1)); switchClub(h || 'main'); });
+
 /* ---------- boot ---------- */
 (async function boot(){
   try { const t = localStorage.getItem(LS_KEY + '-tab'); if (t === 'rank' || t === 'roster') setTab(t); } catch (e) {}
+  const fromHash = decodeURIComponent(location.hash.slice(1));
+  let saved = ''; try { saved = localStorage.getItem(LS_KEY + '-club') || ''; } catch (e) {}
+  const startClub = /^[A-Za-z0-9_-]{1,30}$/.test(fromHash) ? fromHash : (/^[A-Za-z0-9_-]{1,30}$/.test(saved) ? saved : 'main');
+  S.club = startClub;
+  derive(); applyClubUI();
   render();
   const cfg = window.FIREBASE_CONFIG, opts = window.APP_OPTIONS || {};
-  const goLocal = msg => { S.mode = 'local'; loadLocal(); S.ready = true; derive(); showBanner(msg); syncUI(); scheduleRender(); };
+  const goLocal = msg => { S.mode = 'local'; S.club = 'main'; loadLocal(); S.ready = true; derive(); applyClubUI(); showBanner(msg); syncUI(); scheduleRender(); };
   if (!configReady(cfg)){
     goLocal('<div><b>還沒連上 Firebase。</b>請照說明把 Firebase 設定貼進 <code>firebase-config.js</code>。在那之前，這裡的資料只會存在這台裝置。</div>');
     return;
