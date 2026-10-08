@@ -94,6 +94,23 @@ table.lb td.big{font-size:24px}
 .lb .who b{font-size:15px}
 .act-admin{justify-content:flex-end;margin-top:8px}
 .act-empty{text-align:center;padding:36px 16px}
+.part.editing{grid-column:span 2}
+@media (max-width:520px){.part.editing{grid-column:1/-1}}
+.part-edit .fld{display:flex;align-items:center;gap:4px;min-width:0;flex:1;height:42px;padding:0 8px;border-radius:9px;background:var(--surface-2);border:1px solid var(--line)}
+.part-edit .fld:focus-within{border-color:var(--accent);background:var(--surface)}
+.part-edit .fld input{height:40px;font-size:20px}
+.part-edit input::placeholder{font-size:13px;font-weight:500;color:var(--muted)}
+.part-edit input::-webkit-inner-spin-button,.part-edit input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.part-edit input[type=number]{-moz-appearance:textfield;appearance:textfield}
+.part-edit .fld span{font-size:12px;color:var(--muted);white-space:nowrap}
+.part-edit .fld.sec input{color:var(--ink)}
+.school-tag{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.school-tag.mine{background:var(--plus-soft);color:var(--plus)}
+.lb-tools{display:flex;gap:6px;flex-wrap:wrap}
+.lb-note{font-size:12.5px;color:var(--muted);margin:8px 0 0}
+.chk{display:inline-flex;align-items:center;gap:8px;font-size:14px;cursor:pointer}
+.chk input{width:18px;height:18px;accent-color:var(--accent)}
+.chk.off{opacity:.45;cursor:not-allowed}
 .act-empty h2{margin:0 0 6px;font-size:18px}
 .act-empty p{margin:0 0 14px;color:var(--muted)}
 .allcard .members{grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr))}
@@ -476,6 +493,7 @@ textarea.in{height:auto;min-height:130px;padding:10px;resize:vertical;line-heigh
           <button type="button" class="preset" data-preset="懸停王|秒|high">懸停王（秒，越久越好）</button>
           <button type="button" class="preset" data-preset="穿環計時|秒|low">穿環計時（秒，越快越好）</button>
           <button type="button" class="preset" data-preset="射門進球|次|high">射門進球（次，越多越好）</button>
+          <button type="button" class="preset" data-preset="障礙賽|分數|high|time">障礙賽（分數＋秒數，同分比快）</button>
         </div>
         <div class="row">
           <input class="in" id="actName" placeholder="項目名稱，例如：懸停王" maxlength="20" aria-label="項目名稱" required>
@@ -486,10 +504,12 @@ textarea.in{height:auto;min-height:130px;padding:10px;resize:vertical;line-heigh
             <option value="high">數字越大越好</option><option value="low">數字越小越好</option>
           </select>
         </div>
+        <label class="chk" id="actTimeWrap"><input type="checkbox" id="actTime"> 也記秒數（訓練速度與穩定：同分時，秒數越少名次越前面）</label>
+        <p class="note" style="margin:0">項目是各校共用的：在這裡建立後，其他學校也看得到、也能使用。</p>
         <div class="row"><button class="btn primary" type="submit">建立項目</button><button class="btn" type="button" id="actNewCancel">取消</button></div>
       </form>
       <div class="panel act-empty" id="actEmpty" hidden>
-        <h2>這個社團還沒有項目</h2>
+        <h2>還沒有任何項目</h2>
         <p>例如「懸停王」：計時器開始後，誰的無人機落地就點誰，秒數會自動記下來。</p>
         <button class="btn primary" data-act-new>新增項目</button>
       </div>
@@ -515,18 +535,25 @@ textarea.in{height:auto;min-height:130px;padding:10px;resize:vertical;line-heigh
         <div class="act-col">
           <div class="panel">
             <div class="lb-head"><h2 class="sec" id="lbTitle">排行榜</h2>
-              <div class="seg" id="lbScope" role="radiogroup" aria-label="排行範圍">
-                <button role="radio" data-scope="all" aria-checked="true">全部</button>
-                <button role="radio" data-scope="today" aria-checked="false">今天</button>
+              <div class="lb-tools">
+                <div class="seg" id="lbWhere" role="radiogroup" aria-label="校內或校外">
+                  <button role="radio" data-where="in" aria-checked="true">校內</button>
+                  <button role="radio" data-where="out" aria-checked="false">校外</button>
+                </div>
+                <div class="seg" id="lbScope" role="radiogroup" aria-label="排行範圍">
+                  <button role="radio" data-scope="all" aria-checked="true">全部</button>
+                  <button role="radio" data-scope="today" aria-checked="false">今天</button>
+                </div>
               </div>
             </div>
             <div class="table-wrap"><table class="lb"><tbody id="lbBody"></tbody></table></div>
+            <p class="lb-note" id="lbNote"></p>
             <div class="row" style="margin-top:10px"><button class="btn sm" id="awardBtn">依名次加分（第1名 +3、第2名 +2、第3名 +1）</button></div>
           </div>
           <div class="panel">
             <h2 class="sec">最近紀錄</h2>
             <ul class="log" id="actLog"></ul>
-            <div class="row act-admin"><button class="linkbtn" id="actRename">改項目名稱</button><button class="linkbtn" id="actDelete">刪除這個項目</button></div>
+            <div class="row act-admin"><button class="linkbtn" id="actRename">改項目名稱</button><button class="linkbtn" id="actTimeToggle">加記秒數</button><button class="linkbtn" id="actDelete">停用這個項目</button></div>
           </div>
         </div>
       </div>
@@ -627,14 +654,14 @@ const $$ = s => [...document.querySelectorAll(s)];
 
 /* ---------- state ---------- */
 let db = null;
-const base = { students: new Map(), clubs: new Map(), acts: new Map() };  // server truth (or local): students of the current club, settings of every club
+const base = { students: new Map(), clubs: new Map(), acts: new Map(), defs: new Map() };  // server truth (or local): students of the current club, settings of every club
 const queues = new Map();                               // path -> {busy, ops[]}
 let inflight = 0;
 const S = {
   mode: 'loading', ready: false,
   students: new Map(), settings: normSettings(null),
   club: 'main', clubs: [], tab: 'groups', rankSort: 'total',
-  acts: new Map(), actId: null, actsReady: false, actEdit: null, partFilter: 'all', lbScope: 'all', actNewOpen: false,
+  acts: new Map(), defs: new Map(), others: new Map(), actId: null, actsReady: false, defsReady: false, actEdit: null, partFilter: 'all', lbScope: 'all', lbWhere: 'in', actNewOpen: false,
   sheetId: null, sheetReason: '', cardReason: '', sheetReturn: null, enEditId: null,
   error: null, undo: null
 };
@@ -653,11 +680,21 @@ const studentPath = id => studentsColl(S.club) + '/' + id;
 const actsColl = c => 'clubs/' + c + '/activities';
 const actPath = id => actsColl(S.club) + '/' + id;
 const ACT_MAX_RECORDS = 500;
-function normAct(id, d){
-  d = d || {};
-  return { id, name: String(d.name || '項目'), unit: String(d.unit || '秒'), better: d.better === 'low' ? 'low' : 'high',
-    ord: Number(d.ord) || 0, created: Number(d.created) || 0,
-    records: Array.isArray(d.records) ? d.records.filter(r => r && typeof r.v === 'number' && r.sid) : [] };
+const DEFS = 'activities/';             // 全域項目定義（各校共用）：activities/{id}
+const defPath = id => DEFS + id;
+function normRecords(arr){ return Array.isArray(arr) ? arr.filter(r => r && typeof r.v === 'number' && r.sid) : []; }
+function buildItem(id, def, clubDoc, legacy){
+  def = def || {};
+  const unit = String(def.unit || '秒');
+  return { id, legacy: !!legacy, name: String(def.name || '項目'), unit, better: def.better === 'low' ? 'low' : 'high',
+    time: !!def.time && unit !== '秒', ord: Number(def.ord) || 0, created: Number(def.created) || 0,
+    owner: String(def.owner || ''), hidden: !!def.hidden, records: normRecords(clubDoc && clubDoc.records) };
+}
+function maskName(n){
+  const a = [...String(n || '')];
+  if (a.length <= 1) return a.join('');
+  if (a.length === 2) return a[0] + 'Ｏ';
+  return a[0] + 'Ｏ'.repeat(a.length - 2) + a[a.length - 1];
 }
 function clubInfo(id, d){
   const def = CLUB_DEFAULTS[id] || {}; d = d || {};
@@ -721,9 +758,13 @@ function derive(){
   const ap = actsColl(S.club) + '/';
   const st = new Map(base.students); let set = base.clubs.get(S.club) || null;
   const ac = new Map(base.acts);
+  const df = new Map(base.defs);
   for (const [path, q] of queues){
     for (const op of q.ops){
-      if (path === sp) set = applyOp(set, op);
+      if (path.startsWith(DEFS) && path.indexOf('/', DEFS.length) === -1){
+        const id = path.slice(DEFS.length); const r = applyOp(df.get(id) || null, op); if (r) df.set(id, r); else df.delete(id);
+      }
+      else if (path === sp) set = applyOp(set, op);
       else if (path.startsWith(ap) && path.indexOf('/', ap.length) === -1){
         const id = path.slice(ap.length); const r = applyOp(ac.get(id) || null, op); if (r) ac.set(id, r); else ac.delete(id);
       }
@@ -734,7 +775,11 @@ function derive(){
   }
   S.students = new Map([...st].map(([id, d]) => [id, normStudent(id, d)]));
   S.settings = normSettings(set);
-  S.acts = new Map([...ac].map(([id, d]) => [id, normAct(id, d)]));
+  S.defs = df;
+  const items = new Map();
+  for (const [id, d] of df) items.set(id, buildItem(id, d, ac.get(id), false));
+  for (const [id, d] of ac) if (!items.has(id) && d && d.name) items.set(id, buildItem(id, d, d, true));
+  S.acts = items;
   const ids = new Set(['main', ...base.clubs.keys()]);
   S.clubs = [...ids].map(id => clubInfo(id, id === S.club ? set : base.clubs.get(id)))
     .sort((x, y) => x.ord - y.ord || x.name.localeCompare(y.name, 'zh-Hant'));
@@ -744,7 +789,8 @@ function write(path, kind, data){
     const op = { kind, data };
     const sp = settingsPath(S.club), pre = studentsColl(S.club) + '/';
     const ap = actsColl(S.club) + '/';
-    if (path === sp) base.clubs.set(S.club, applyOp(base.clubs.get(S.club) || null, op));
+    if (path.startsWith(DEFS)){ const id = path.slice(DEFS.length); const r = applyOp(base.defs.get(id) || null, op); if (r) base.defs.set(id, r); else base.defs.delete(id); }
+    else if (path === sp) base.clubs.set(S.club, applyOp(base.clubs.get(S.club) || null, op));
     else if (path.startsWith(ap)){ const id = path.slice(ap.length); const r = applyOp(base.acts.get(id) || null, op); if (r) base.acts.set(id, r); else base.acts.delete(id); }
     else if (path.startsWith(pre)){ const id = path.slice(pre.length); const r = applyOp(base.students.get(id) || null, op); if (r) base.students.set(id, r); else base.students.delete(id); }
     saveLocal(); derive(); scheduleRender(); return;
@@ -786,7 +832,7 @@ function writeFailed(e){
   S.error = msg; showToast(msg, null, true);
 }
 function saveLocal(){
-  try { localStorage.setItem(LS_KEY, JSON.stringify({ students: [...base.students].map(([id, d]) => ({ id, ...d })), settings: base.clubs.get('main') || null, acts: [...base.acts].map(([id, d]) => ({ id, ...d })) })); } catch (e) {}
+  try { localStorage.setItem(LS_KEY, JSON.stringify({ students: [...base.students].map(([id, d]) => ({ id, ...d })), settings: base.clubs.get('main') || null, acts: [...base.acts].map(([id, d]) => ({ id, ...d })), defs: [...base.defs].map(([id, d]) => ({ id, ...d })) })); } catch (e) {}
 }
 function loadLocal(){
   try {
@@ -795,6 +841,7 @@ function loadLocal(){
     base.students = new Map((o.students || []).map(s => { const { id, ...rest } = s; return [id, rest]; }));
     if (o.settings) base.clubs.set('main', o.settings);
     base.acts = new Map((o.acts || []).map(a => { const { id, ...rest } = a; return [id, rest]; }));
+    base.defs = new Map((o.defs || []).map(a => { const { id, ...rest } = a; return [id, rest]; }));
   } catch (e) {}
 }
 
@@ -811,6 +858,15 @@ function subscribe(){
   }, subErr);
   subscribeStudents();
   subscribeActs();
+  subscribeDefs();
+}
+let unsubDefs = null;
+function subscribeDefs(){
+  if (unsubDefs) try { unsubDefs(); } catch (e) {}
+  unsubDefs = db.collection('activities').onSnapshot(snap => {
+    base.defs = new Map(snap.docs.map(d => [d.id, d.data()]));
+    S.defsReady = true; derive(); scheduleRender();
+  }, subErr);
 }
 let unsubActs = null;
 function subscribeActs(){
@@ -1745,7 +1801,7 @@ $('#clubNav').addEventListener('click', e => { const b = e.target.closest('[data
 window.addEventListener('hashchange', () => { const h = decodeURIComponent(location.hash.slice(1)); switchClub(h || 'main'); });
 
 
-/* ===================== 項目（activities）＋多圈計時器 ===================== */
+/* ===================== 項目（各校共用）＋多圈計時器 ===================== */
 const T = { aid: null, running: false, t0: 0, acc: 0, laps: [], round: 0, done: new Map() };
 const nowMs = () => performance.now();
 const swElapsed = () => T.acc + (T.running ? nowMs() - T.t0 : 0);
@@ -1755,20 +1811,26 @@ function fmtClock(ms){
   const m = Math.floor(ms / 60000), sec = Math.floor(ms / 1000) % 60, cs = Math.floor(ms / 10) % 100;
   return `${pad2(m)}:${pad2(sec)}.${pad2(cs)}`;
 }
-function fmtVal(act, v){
-  if (act.unit === '秒'){
-    if (v >= 60){ const m = Math.floor(v / 60); return `${m}:${(v - m * 60).toFixed(2).padStart(5, '0')}`; }
-    return `${v.toFixed(2)} 秒`;
-  }
-  return `${Number.isInteger(v) ? v : v.toFixed(2)} ${act.unit}`;
+function fmtSec(v){
+  if (v >= 60){ const m = Math.floor(v / 60); return `${m}:${(v - m * 60).toFixed(2).padStart(5, '0')}`; }
+  return `${v.toFixed(2)} 秒`;
+}
+function fmtNum(v){ return Number.isInteger(v) ? String(v) : v.toFixed(2); }
+function fmtVal(act, v){ return act.unit === '秒' ? fmtSec(v) : `${fmtNum(v)} ${act.unit}`; }
+function fmtRec(act, r){
+  if (!r) return '';
+  const main = fmtVal(act, r.v);
+  return act.time && typeof r.s === 'number' ? `${main} · ${fmtSec(r.s)}` : main;
 }
 const isTimed = act => !!act && act.unit === '秒';
-function sortedActs(){ return [...S.acts.values()].sort((a, b) => a.ord - b.ord || a.created - b.created); }
+const showsTimer = act => !!act && (act.unit === '秒' || act.time);
+const lapSec = ms => Math.floor(ms / 10) / 100;
+function sortedActs(){ return [...S.acts.values()].filter(a => !a.hidden).sort((a, b) => a.ord - b.ord || a.created - b.created); }
 function curAct(){
-  if (S.actId && S.acts.has(S.actId)) return S.acts.get(S.actId);
+  if (S.actId && S.acts.has(S.actId) && !S.acts.get(S.actId).hidden) return S.acts.get(S.actId);
   let saved = ''; try { saved = localStorage.getItem(LS_KEY + '-act-' + S.club) || ''; } catch (e) {}
   const list = sortedActs();
-  const a = (saved && S.acts.get(saved)) || list[list.length - 1] || null;
+  const a = (saved && list.find(x => x.id === saved)) || list[list.length - 1] || null;
   S.actId = a ? a.id : null;
   return a;
 }
@@ -1780,41 +1842,83 @@ function selectAct(id){
   try { localStorage.setItem(LS_KEY + '-act-' + S.club, id); } catch (e) {}
   renderActs();
 }
-function better(act, a, b){ return act.better === 'low' ? a < b : a > b; }
-function leaderboard(act, scope){
-  const t0 = todayStart(), m = new Map();
-  for (const r of act.records){
-    if (scope === 'today' && !(r.t >= t0)) continue;
-    let e = m.get(r.sid);
-    if (!e){ e = { sid: r.sid, n: r.n, best: r.v, count: 0, last: 0 }; m.set(r.sid, e); }
-    e.count++; e.last = Math.max(e.last, r.t || 0);
-    if (better(act, r.v, e.best)) e.best = r.v;
+/* 比較兩筆成績：負數代表 a 比較好。分數＋秒數的項目同分時比秒數（少的好） */
+function recCmp(act, a, b){
+  const d = act.better === 'low' ? a.v - b.v : b.v - a.v;
+  if (d) return d;
+  if (act.time){
+    const as = typeof a.s === 'number' ? a.s : Infinity, bs = typeof b.s === 'number' ? b.s : Infinity;
+    if (as !== bs) return as < bs ? -1 : 1;
   }
-  const rows = [...m.values()].sort((a, b) => act.better === 'low' ? a.best - b.best : b.best - a.best);
+  return 0;
+}
+function leaderboardOf(act, entries, scope){
+  const t0 = todayStart(), m = new Map();
+  for (const { club, rec } of entries){
+    if (scope === 'today' && !(rec.t >= t0)) continue;
+    const key = club + '|' + rec.sid;
+    let e = m.get(key);
+    if (!e){ e = { club, sid: rec.sid, n: rec.n, best: rec, count: 0, last: 0 }; m.set(key, e); }
+    e.count++; e.last = Math.max(e.last, rec.t || 0);
+    if (recCmp(act, rec, e.best) < 0) e.best = rec;
+  }
+  const rows = [...m.values()].sort((x, y) => recCmp(act, x.best, y.best));
   let prev = null, rank = 0;
-  rows.forEach((x, i) => { if (x.best !== prev){ rank = i + 1; prev = x.best; } x.rank = rank; });
+  rows.forEach((x, i) => { if (!prev || recCmp(act, x.best, prev) !== 0){ rank = i + 1; prev = x.best; } x.rank = rank; });
   return rows;
 }
+const ownEntries = act => act.records.map(rec => ({ club: S.club, rec }));
+function allEntries(act){
+  const out = ownEntries(act);
+  S.clubs.forEach(c => { if (c.id !== S.club) (S.others.get(c.id) || []).forEach(rec => out.push({ club: c.id, rec })); });
+  return out;
+}
+const leaderboard = (act, scope) => leaderboardOf(act, ownEntries(act), scope);
 function stuName(sid, fallback){ const s = S.students.get(sid); return s ? s.name : (fallback || '（已刪除）'); }
+const clubName = id => { const c = S.clubs.find(x => x.id === id); return c ? c.name : id; };
+
+/* ---------- 校外榜：即時讀取其他學校同一個項目的成績 ---------- */
+let othersKey = '', othersUnsubs = [];
+function syncOthers(){
+  const act = S.ready && S.actsReady && S.defsReady ? curAct() : null;
+  const key = (S.mode === 'db' && act && S.lbWhere === 'out') ? [S.club, act.id, ...S.clubs.map(c => c.id)].join('|') : '';
+  if (key === othersKey) return;
+  othersUnsubs.forEach(u => { try { u(); } catch (e) {} }); othersUnsubs = [];
+  S.others = new Map(); othersKey = key;
+  if (!key) return;
+  S.clubs.filter(c => c.id !== S.club).forEach(c => {
+    othersUnsubs.push(db.doc(`clubs/${c.id}/activities/${act.id}`).onSnapshot(snap => {
+      if (othersKey !== key) return;
+      S.others.set(c.id, normRecords(snap.exists ? (snap.data() || {}).records : []));
+      renderLeaderboard();
+    }, subErr));
+  });
+}
 
 /* ---------- writes ---------- */
-function createAct(name, unit, better_){
+function createAct(name, unit, better_, time){
   const id = uid('a');
-  const ord = sortedActs().reduce((m, a) => Math.max(m, a.ord), 0) + 1;
-  write(actPath(id), 'set', { name, unit, better: better_, ord, created: Date.now(), records: [] });
+  const ord = [...S.acts.values()].reduce((m, a) => Math.max(m, a.ord), 0) + 1;
+  write(defPath(id), 'set', { name, unit, better: better_, time: !!time && unit !== '秒', ord, created: Date.now(), owner: S.club, hidden: false });
   S.actId = id; try { localStorage.setItem(LS_KEY + '-act-' + S.club, id); } catch (e) {}
-  showToast(`已新增項目「${name}」`);
+  showToast(`已新增項目「${name}」，各校都能使用`);
 }
-function addRecord(sid, v, fromLap){
-  const act = curAct(), s = S.students.get(sid);
-  if (!act || !s || !Number.isFinite(v)) return;
-  v = Math.round(v * 100) / 100;
-  const rec = { k: uid('r'), sid, n: s.name, v, t: Date.now(), r: T.round || 0 };
-  write(actPath(act.id), 'update', { records: [...act.records, rec].slice(-ACT_MAX_RECORDS) });
-  if (T.round && isTimed(act)) T.done.set(sid, v);
-  showToast(`${s.name}：${fmtVal(act, v)}`, () => {
+/* 只改這個學校自己的成績文件（clubs/{學校}/activities/{項目}）的 records 欄位 */
+function writeClubRecords(aid, records){
+  const path = actPath(aid), q = queues.get(path);
+  const exists = base.acts.has(aid) || (q && q.ops.some(o => o.kind === 'set'));
+  write(path, exists ? 'update' : 'set', { records });
+}
+function addRecord(sid, v, sec){
+  const act = curAct(), st = S.students.get(sid);
+  if (!act || !st || !Number.isFinite(v)) return '';
+  const rec = { k: uid('r'), sid, n: st.name, v: Math.round(v * 100) / 100, t: Date.now(), r: T.round || 0 };
+  if (act.time && Number.isFinite(sec) && sec >= 0) rec.s = Math.round(sec * 100) / 100;
+  writeClubRecords(act.id, [...act.records, rec].slice(-ACT_MAX_RECORDS));
+  if (T.round && showsTimer(act)) T.done.set(sid, rec);
+  showToast(`${st.name}：${fmtRec(act, rec)}`, () => {
     removeRecord(act.id, rec.k, true);
-    if (T.done.get(sid) === v) T.done.delete(sid);
+    const d = T.done.get(sid); if (d && d.k === rec.k) T.done.delete(sid);
     T.laps.forEach(l => { if (l.k === rec.k){ l.sid = ''; l.k = ''; } });
     renderActs();
   });
@@ -1823,10 +1927,15 @@ function addRecord(sid, v, fromLap){
 function removeRecord(aid, k, silent){
   const act = S.acts.get(aid); if (!act) return;
   const rec = act.records.find(r => r.k === k); if (!rec) return;
-  write(actPath(aid), 'update', { records: act.records.filter(r => r.k !== k) });
-  if (!silent) showToast(`已刪除 ${stuName(rec.sid, rec.n)} 的 ${fmtVal(act, rec.v)}`, () => {
-    const a2 = S.acts.get(aid); if (a2) write(actPath(aid), 'update', { records: [...a2.records, rec].sort((x, y) => x.t - y.t).slice(-ACT_MAX_RECORDS) });
+  writeClubRecords(aid, act.records.filter(r => r.k !== k));
+  if (!silent) showToast(`已刪除 ${stuName(rec.sid, rec.n)} 的 ${fmtRec(act, rec)}`, () => {
+    const a2 = S.acts.get(aid); if (a2) writeClubRecords(aid, [...a2.records, rec].sort((x, y) => x.t - y.t).slice(-ACT_MAX_RECORDS));
   });
+}
+/* 改定義：全域定義存在就更新；舊的（只存在某校文件裡的）就補一份全域定義，不動原本的文件 */
+function writeDef(act, patch){
+  if (S.defs.has(act.id)) write(defPath(act.id), 'update', patch);
+  else write(defPath(act.id), 'set', { name: act.name, unit: act.unit, better: act.better, time: act.time, ord: act.ord, created: act.created || Date.now(), owner: act.owner || S.club, hidden: false, ...patch });
 }
 
 /* ---------- stopwatch ---------- */
@@ -1847,7 +1956,7 @@ function swLoop(){
   f();
 }
 function swToggle(){
-  const act = curAct(); if (!act || !isTimed(act)) return;
+  const act = curAct(); if (!act || !showsTimer(act)) return;
   if (T.running){ T.acc = swElapsed(); T.running = false; }
   else { if (!T.round) T.round = Date.now(); T.aid = act.id; T.t0 = nowMs(); T.running = true; }
   swLoop(); swPaint(); renderParts(); renderPartHelp();
@@ -1857,13 +1966,14 @@ function swLap(sid){
   const prev = T.laps.length ? T.laps[T.laps.length - 1].total : 0;
   const lap = { i: T.laps.length + 1, total: el, split: el - prev, sid: '', k: '' };
   T.laps.push(lap);
-  if (sid){ lap.sid = sid; lap.k = addRecord(sid, Math.floor(el / 10) / 100, true) || ''; }
+  if (sid){ lap.sid = sid; lap.k = addRecord(sid, lapSec(el)) || ''; }
   renderLaps(); renderParts(); swPaint();
   return lap;
 }
 function swReset(quiet){
   T.running = false; T.acc = 0; T.laps = []; T.round = 0; T.done = new Map(); T.aid = null;
   cancelAnimationFrame(swRaf);
+  if (S.actEdit && S.actEdit.lap) S.actEdit = null;
   if (!quiet){ swPaint(); renderLaps(); renderParts(); renderPartHelp(); }
 }
 
@@ -1874,32 +1984,48 @@ function participants(){
   return sortRoster(list);
 }
 function renderActs(){
-  const act = S.ready && S.actsReady ? curAct() : null;
-  const list = sortedActs();
-  $('#actBar').innerHTML = (S.ready && S.actsReady)
-    ? list.map(a => `<button class="act-chip" data-act-id="${esc(a.id)}" aria-current="${a.id === S.actId}">${esc(a.name)}<small>${esc(a.unit)}・${a.better === 'low' ? '越小越好' : '越大越好'}</small></button>`).join('') + `<button class="act-chip act-add" data-act-new>＋ 新增項目</button>`
+  const ok = S.ready && S.actsReady && S.defsReady;
+  const act = ok ? curAct() : null;
+  const list = ok ? sortedActs() : [];
+  $('#actBar').innerHTML = ok
+    ? list.map(a => `<button class="act-chip" data-act-id="${esc(a.id)}" aria-current="${a.id === S.actId}">${esc(a.name)}<small>${esc(a.unit)}${a.time ? '＋秒數' : ''}・${a.better === 'low' ? '越小越好' : '越大越好'}</small></button>`).join('') + `<button class="act-chip act-add" data-act-new>＋ 新增項目</button>`
     : '<span class="muted">讀取項目中…</span>';
   $('#actNew').hidden = !S.actNewOpen;
-  $('#actEmpty').hidden = !(S.ready && S.actsReady && !list.length && !S.actNewOpen);
+  $('#actEmpty').hidden = !(ok && !list.length && !S.actNewOpen);
   $('#actMain').hidden = !act;
+  syncOthers();
   if (!act) return;
-  $('#swPanel').hidden = !isTimed(act);
+  $('#swPanel').hidden = !showsTimer(act);
   $('#swInfo').textContent = T.round ? `這一輪已記 ${T.done.size} 人` : '';
-  // group filter
   const pf = $('#partFilter');
   if (groupsOn()){
     const n = S.settings.groupCount; let h = `<button role="radio" data-pf="all" aria-checked="${S.partFilter === 'all'}">全部</button>`;
     for (let i = 1; i <= n; i++) h += `<button role="radio" data-pf="g${i}" aria-checked="${S.partFilter === 'g' + i}">${esc(groupName('g' + i))}</button>`;
     pf.innerHTML = h; pf.hidden = false;
   } else { pf.innerHTML = ''; pf.hidden = true; }
+  const tt = $('#actTimeToggle'); tt.hidden = isTimed(act);
+  tt.textContent = act.time ? '不記秒數' : '加記秒數（同分比快）';
   swPaint(); renderLaps(); renderParts(); renderPartHelp(); renderLeaderboard(); renderActLog();
 }
 function renderPartHelp(){
   const act = curAct(); if (!act) return;
   const armed = T.running || swElapsed() > 0;
-  $('#partHelp').textContent = isTimed(act)
-    ? (armed ? '計時中：點名字就把目前的秒數記給他（綠色代表這一輪已記錄）。' : '按「開始」後點名字記秒數；沒計時的時候點名字，可以直接打數字。')
-    : `點名字輸入成績（${act.unit}）。`;
+  let t;
+  if (isTimed(act)) t = armed ? '計時中：點名字就把目前的秒數記給他（綠色代表這一輪已記錄）。' : '按「開始」後點名字記秒數；沒計時的時候點名字，可以直接打數字。';
+  else if (act.time) t = armed ? `計時中：學生完成時點他的名字，秒數會先記下，再輸入${act.unit}。` : `按「開始」計時，完成時點名字輸入${act.unit}；沒計時的時候點名字，可以自己打${act.unit}和秒數。`;
+  else t = `點名字輸入成績（${act.unit}）。`;
+  $('#partHelp').textContent = t;
+}
+function editorHTML(act, s){
+  const id = esc(s.id), ed = S.actEdit;
+  if (act.time){
+    const secV = ed && Number.isFinite(ed.s) ? ed.s.toFixed(2) : '';
+    return `<li class="part editing"><div class="part-edit"><b>${esc(s.name)}</b>
+      <label class="fld"><input type="number" step="0.01" min="0" inputmode="decimal" id="actIn-${id}" data-sid="${id}" data-role="v" placeholder="輸入" aria-label="${esc(s.name)} 的${esc(act.name)}${esc(act.unit)}"><span>${esc(act.unit)}</span></label>
+      <label class="fld sec"><input type="number" step="0.01" min="0" inputmode="decimal" id="actSec-${id}" data-sid="${id}" data-role="s" value="${secV}" placeholder="輸入" aria-label="${esc(s.name)} 的秒數"><span>秒</span></label>
+      <button class="btn sm primary" data-save="${id}">存</button></div></li>`;
+  }
+  return `<li class="part editing"><div class="part-edit"><b>${esc(s.name)}</b><input type="number" step="0.01" min="0" inputmode="decimal" id="actIn-${id}" data-sid="${id}" data-role="v" placeholder="${esc(act.unit)}" aria-label="${esc(s.name)} 的${esc(act.name)}成績"><button class="btn sm primary" data-save="${id}">存</button></div></li>`;
 }
 function renderParts(){
   const act = curAct(); if (!act) return;
@@ -1908,11 +2034,11 @@ function renderParts(){
   const benched = [...S.students.values()].filter(s => !s.absent && isBenched(s) && (!groupsOn() || S.partFilter === 'all' || s.grp === S.partFilter)).length;
   $('#partCount').textContent = `${list.length} 人${benched ? `（${benched} 位觀摩中）` : ''}`;
   $('#parts').innerHTML = list.map(s => {
+    if (S.actEdit && S.actEdit.sid === s.id) return editorHTML(act, s);
     const id = esc(s.id);
-    if (S.actEdit === s.id) return `<li class="part"><div class="part-edit"><b>${esc(s.name)}</b><input type="number" step="0.01" min="0" inputmode="decimal" id="actIn-${id}" data-sid="${id}" placeholder="${esc(act.unit)}" aria-label="${esc(s.name)} 的${esc(act.name)}成績"><button class="btn sm primary" data-save="${id}">存</button></div></li>`;
-    const doneV = T.done.get(s.id);
-    const sub = doneV !== undefined ? `這輪 ${fmtVal(act, doneV)}` : (best.has(s.id) ? `最佳 ${fmtVal(act, best.get(s.id))}` : '還沒有紀錄');
-    return `<li class="part${doneV !== undefined ? ' done' : ''}"><button class="part-btn" data-sid="${id}"><span><span class="nm">${esc(s.name)}</span>${s.en ? ` <span class="en">${esc(s.en)}</span>` : ''}</span><span class="pv">${sub}</span></button></li>`;
+    const done = T.done.get(s.id);
+    const sub = done ? `這輪 ${fmtRec(act, done)}` : (best.has(s.id) ? `最佳 ${fmtRec(act, best.get(s.id))}` : '還沒有紀錄');
+    return `<li class="part${done ? ' done' : ''}"><button class="part-btn" data-sid="${id}"><span><span class="nm">${esc(s.name)}</span>${s.en ? ` <span class="en">${esc(s.en)}</span>` : ''}</span><span class="pv">${esc(sub)}</span></button></li>`;
   }).join('') || '<li class="muted" style="grid-column:1/-1">沒有出席的學生。</li>';
   $('#parts').classList.toggle('armed', T.running || swElapsed() > 0);
 }
@@ -1930,91 +2056,125 @@ function renderLaps(){
 function renderLeaderboard(){
   const act = curAct(); if (!act) return;
   $$('#lbScope [data-scope]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.scope === S.lbScope)));
-  $('#lbTitle').textContent = `${act.name} 排行榜`;
-  const rows = leaderboard(act, S.lbScope);
+  $$('#lbWhere [data-where]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.where === S.lbWhere)));
+  const out = S.lbWhere === 'out';
+  $('#lbTitle').textContent = `${act.name} ${out ? '校外榜' : '校內榜'}`;
+  const rows = out ? leaderboardOf(act, allEntries(act), S.lbScope) : leaderboard(act, S.lbScope);
   $('#lbBody').innerHTML = rows.length ? rows.map(x => {
+    if (out){
+      const mine = x.club === S.club;
+      return `<tr><td class="rkn${x.rank <= 3 ? ' rk-top' : ''}">${x.rank}</td>
+        <td><span class="who"><b>${esc(maskName(x.n || stuName(x.sid)))}</b></span> <span class="school-tag${mine ? ' mine' : ''}">${esc(clubName(x.club))}</span></td>
+        <td class="r big">${esc(fmtRec(act, x.best))}</td></tr>`;
+    }
     const s = S.students.get(x.sid);
     return `<tr><td class="rkn${x.rank <= 3 ? ' rk-top' : ''}">${x.rank}</td>
       <td><span class="who"><b>${esc(stuName(x.sid, x.n))}</b>${s && s.en ? ` <span class="en">${esc(s.en)}</span>` : ''}</span><div class="muted" style="font-size:12px">${s ? esc(s.cls) : ''}${x.count > 1 ? ` · ${x.count} 次` : ''}</div></td>
-      <td class="r big">${esc(fmtVal(act, x.best))}</td></tr>`;
+      <td class="r big">${esc(fmtRec(act, x.best))}</td></tr>`;
   }).join('') : `<tr><td class="muted">${S.lbScope === 'today' ? '今天還沒有紀錄' : '還沒有紀錄'}</td></tr>`;
+  const schools = new Set(rows.map(x => x.club)).size;
+  $('#lbNote').textContent = out
+    ? `各校共同排名${schools ? `（${schools} 所學校）` : ''}；為了保護隱私，姓名中間以「Ｏ」顯示。${act.time ? '同分時秒數少的排前面。' : ''}`
+    : (act.time ? '同分時秒數少的排前面。' : '');
+  $('#awardBtn').hidden = out;
   $('#awardBtn').disabled = !rows.length;
 }
 function renderActLog(){
   const act = curAct(); if (!act) return;
   const recs = act.records.slice().sort((a, b) => b.t - a.t).slice(0, 30);
-  $('#actLog').innerHTML = recs.length ? recs.map(r => `<li><span class="when">${fmtTime(r.t)}</span><span class="who"><b>${esc(stuName(r.sid, r.n))}</b></span><span class="d pos">${esc(fmtVal(act, r.v))}</span><button class="rec-cancel" data-del-rec="${esc(r.k)}">刪除</button></li>`).join('')
+  $('#actLog').innerHTML = recs.length ? recs.map(r => `<li><span class="when">${fmtTime(r.t)}</span><span class="who"><b>${esc(stuName(r.sid, r.n))}</b></span><span class="d pos">${esc(fmtRec(act, r))}</span><button class="rec-cancel" data-del-rec="${esc(r.k)}">刪除</button></li>`).join('')
     : '<li style="display:block"><span class="none">還沒有紀錄</span></li>';
 }
 
 /* ---------- events ---------- */
-function openActEdit(sid){
-  S.actEdit = sid; renderParts();
+function openActEdit(sid, sec, lapI){
+  S.actEdit = { sid, s: Number.isFinite(sec) ? sec : NaN, lap: lapI || 0 };
+  renderParts();
   const inp = document.getElementById('actIn-' + sid); if (inp) inp.focus();
 }
 function saveActEdit(sid){
-  const inp = document.getElementById('actIn-' + sid);
-  const v = inp ? parseFloat(inp.value) : NaN;
+  const act = curAct(); const ed = S.actEdit;
+  const vIn = document.getElementById('actIn-' + sid), sIn = document.getElementById('actSec-' + sid);
+  const v = vIn ? parseFloat(vIn.value) : NaN;
+  const sec = sIn ? parseFloat(sIn.value) : NaN;
+  if (!Number.isFinite(v) || v < 0){ if (vIn){ vIn.focus(); } showToast(`請輸入${act ? act.unit : '成績'}`); return; }
   S.actEdit = null;
-  if (inp) inp.blur();
-  if (Number.isFinite(v) && v >= 0) addRecord(sid, v);
+  if (vIn) vIn.blur(); if (sIn) sIn.blur();
+  const k = addRecord(sid, v, sec);
+  if (ed && ed.lap){ const lap = T.laps.find(l => l.i === ed.lap); if (lap){ lap.sid = sid; lap.k = k; } }
   renderActs();
 }
+function cancelActEdit(){ S.actEdit = null; renderActs(); }
 $('#view-acts').addEventListener('click', async e => {
   const t = e.target;
   const chip = t.closest('[data-act-id]'); if (chip){ selectAct(chip.dataset.actId); return; }
-  if (t.closest('[data-act-new]')){ S.actNewOpen = true; renderActs(); $('#actName').focus(); return; }
+  if (t.closest('[data-act-new]')){ S.actNewOpen = true; renderActs(); syncTimeChk(); $('#actName').focus(); return; }
   const pre = t.closest('[data-preset]');
-  if (pre){ const [n, u, b] = pre.dataset.preset.split('|'); $('#actName').value = n; $('#actUnit').value = u; $('#actBetter').value = b; $('#actName').focus(); return; }
+  if (pre){ const [n, u, b, tm] = pre.dataset.preset.split('|'); $('#actName').value = n; $('#actUnit').value = u; $('#actBetter').value = b; $('#actTime').checked = tm === 'time'; syncTimeChk(); $('#actName').focus(); return; }
   if (t.closest('#actNewCancel')){ S.actNewOpen = false; renderActs(); return; }
   if (t.closest('#swGo')){ swToggle(); return; }
   if (t.closest('#swLap')){ swLap(''); return; }
   if (t.closest('#swReset')){ swReset(false); renderActs(); return; }
   const pf = t.closest('[data-pf]'); if (pf){ S.partFilter = pf.dataset.pf; renderActs(); return; }
   const sc = t.closest('[data-scope]'); if (sc){ S.lbScope = sc.dataset.scope; renderLeaderboard(); return; }
+  const wh = t.closest('[data-where]'); if (wh){ S.lbWhere = wh.dataset.where; syncOthers(); renderLeaderboard(); return; }
   const sv = t.closest('[data-save]'); if (sv){ saveActEdit(sv.dataset.save); return; }
   const pb = t.closest('.part-btn');
   if (pb){
     const sid = pb.dataset.sid, act = curAct(); if (!act) return;
-    if (isTimed(act) && (T.running || swElapsed() > 0)){
+    const armed = showsTimer(act) && (T.running || swElapsed() > 0);
+    if (armed){
       if (T.done.has(sid)){ showToast(`${stuName(sid)} 這一輪已經記過了（要改請到「最近紀錄」刪除）`); return; }
-      swLap(sid); return;
+      if (isTimed(act)){ swLap(sid); return; }
+      const lap = swLap('');
+      openActEdit(sid, lap ? lapSec(lap.total) : NaN, lap ? lap.i : 0); return;
     }
     openActEdit(sid); return;
   }
   const dr = t.closest('[data-del-rec]'); if (dr){ const act = curAct(); if (act) removeRecord(act.id, dr.dataset.delRec); return; }
   if (t.closest('#awardBtn')){ awardByRank(); return; }
   if (t.closest('#actRename')){ renameAct(); return; }
-  if (t.closest('#actDelete')){ deleteAct(); return; }
+  if (t.closest('#actTimeToggle')){ toggleActTime(); return; }
+  if (t.closest('#actDelete')){ hideAct(); return; }
 });
 $('#view-acts').addEventListener('change', e => {
+  if (e.target.id === 'actUnit'){ syncTimeChk(); return; }
   const sel = e.target.closest('select[data-lap]');
   if (sel && sel.value){
+    const act = curAct();
     const lap = T.laps.find(l => l.i === Number(sel.dataset.lap));
-    if (lap && !lap.sid){ lap.sid = sel.value; lap.k = addRecord(sel.value, Math.floor(lap.total / 10) / 100, true) || ''; }
-    renderLaps(); renderParts(); renderActs();
+    if (act && lap && !lap.sid){
+      if (isTimed(act)){ lap.sid = sel.value; lap.k = addRecord(sel.value, lapSec(lap.total)) || ''; }
+      else { openActEdit(sel.value, lapSec(lap.total), lap.i); return; }
+    }
+    renderActs();
   }
 });
 $('#view-acts').addEventListener('keydown', e => {
   if (e.target.matches('.part-edit input')){
     if (e.key === 'Enter' && !e.isComposing){ e.preventDefault(); saveActEdit(e.target.dataset.sid); }
-    else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); S.actEdit = null; renderActs(); }
+    else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); cancelActEdit(); }
   }
 });
 $('#view-acts').addEventListener('focusout', () => setTimeout(flushDeferred, 0));
+function syncTimeChk(){
+  const sec = $('#actUnit').value === '秒';
+  $('#actTime').disabled = sec; if (sec) $('#actTime').checked = false;
+  $('#actTimeWrap').classList.toggle('off', sec);
+}
 $('#actNew').addEventListener('submit', e => {
   e.preventDefault();
   const name = $('#actName').value.trim().slice(0, 20); if (!name){ $('#actName').focus(); return; }
   swReset(true);
-  createAct(name, $('#actUnit').value, $('#actBetter').value);
-  $('#actName').value = ''; S.actNewOpen = false; S.actEdit = null;
+  createAct(name, $('#actUnit').value, $('#actBetter').value, $('#actTime').checked);
+  $('#actName').value = ''; $('#actTime').checked = false; S.actNewOpen = false; S.actEdit = null;
   renderActs();
 });
 document.addEventListener('keydown', e => {
   if (S.tab !== 'acts' || S.sheetId || !$('#confirm').hidden || e.metaKey || e.ctrlKey || e.altKey) return;
   const tg = e.target;
   if (tg && tg.closest && tg.closest('input, textarea, select, [contenteditable="true"]')) return;
-  const act = curAct(); if (!act || !isTimed(act)) return;
+  const act = curAct(); if (!act || !showsTimer(act)) return;
   const onButton = !!(tg && tg.closest && tg.closest('button'));
   if ((e.code === 'Space' || e.key === ' ') && !onButton){ e.preventDefault(); swToggle(); }
   else if (e.key === 'l' || e.key === 'L'){ e.preventDefault(); swLap(''); }
@@ -2025,7 +2185,7 @@ async function awardByRank(){
   if (!rows.length) return;
   const tiers = { 1: 3, 2: 2, 3: 1 };
   const desc = rows.map(x => `第${x.rank}名 ${stuName(x.sid)} +${tiers[x.rank]}`).join('、');
-  if (!(await confirmBox(`依「${act.name}」${S.lbScope === 'today' ? '今天' : ''}名次加分？`, desc, '加分'))) return;
+  if (!(await confirmBox(`依「${act.name}」${S.lbScope === 'today' ? '今天' : ''}校內名次加分？`, desc, '加分'))) return;
   const undos = [];
   [1, 2, 3].forEach(rk => {
     const ids = rows.filter(x => x.rank === rk).map(x => x.sid);
@@ -2040,23 +2200,34 @@ async function renameAct(){
   const inp = document.createElement('input');
   inp.className = 'in'; inp.value = act.name; inp.maxLength = 20; inp.style.maxWidth = '14em'; inp.setAttribute('aria-label', '新的項目名稱');
   host.replaceWith(inp); inp.focus(); inp.select();
+  let closed = false;
   const done = save => {
+    if (closed) return; closed = true;
     const v = inp.value.trim().slice(0, 20);
     inp.replaceWith(host);
-    if (save && v && v !== act.name) write(actPath(act.id), 'update', { name: v });
+    if (save && v && v !== act.name) writeDef(act, { name: v });
     renderActs();
   };
   inp.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); done(true); } else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); done(false); } });
   inp.addEventListener('blur', () => { if (inp.isConnected) done(true); }, { once: true });
 }
-async function deleteAct(){
+/* 分數項目切換「也記秒數」：只改共用定義的 time 欄位，已記的成績不動 */
+function toggleActTime(){
+  const act = curAct(); if (!act || isTimed(act)) return;
+  if (T.running){ showToast('計時中不能切換，請先暫停或重設'); return; }
+  swReset(true); S.actEdit = null;
+  const on = !act.time;
+  writeDef(act, { time: on });
+  showToast(on ? `「${act.name}」之後會同時記${act.unit}和秒數（各校都適用）` : `「${act.name}」之後只記${act.unit}`, () => writeDef(act, { time: !on }));
+  renderActs();
+}
+/* 停用：只把共用定義標成 hidden，各校已記的成績都保留 */
+async function hideAct(){
   const act = curAct(); if (!act) return;
-  if (!(await confirmBox(`刪除「${act.name}」？`, `這個項目和裡面 ${act.records.length} 筆紀錄都會刪除，學生的積分不受影響。`, '刪除'))) return;
-  const data = { name: act.name, unit: act.unit, better: act.better, ord: act.ord, created: act.created, records: act.records };
-  const path = actPath(act.id);
+  if (!(await confirmBox(`停用「${act.name}」？`, '所有學校的項目清單都不會再出現它；各校已經記下的成績會完整保留在資料庫裡，之後可以請 Claude 恢復。', '停用'))) return;
   swReset(true); S.actId = null;
-  write(path, 'delete', null);
-  showToast(`已刪除項目「${act.name}」`, () => write(path, 'set', data));
+  writeDef(act, { hidden: true });
+  showToast(`已停用項目「${act.name}」`, () => writeDef(act, { hidden: false }));
   renderActs();
 }
 
@@ -2070,7 +2241,7 @@ async function deleteAct(){
   derive(); applyClubUI();
   render();
   const cfg = window.FIREBASE_CONFIG, opts = window.APP_OPTIONS || {};
-  const goLocal = msg => { S.mode = 'local'; S.club = 'main'; loadLocal(); S.ready = true; S.actsReady = true; derive(); applyClubUI(); showBanner(msg); syncUI(); scheduleRender(); };
+  const goLocal = msg => { S.mode = 'local'; S.club = 'main'; loadLocal(); S.ready = true; S.actsReady = true; S.defsReady = true; derive(); applyClubUI(); showBanner(msg); syncUI(); scheduleRender(); };
   if (!configReady(cfg)){
     goLocal('<div><b>還沒連上 Firebase。</b>請照說明把 Firebase 設定貼進 <code>firebase-config.js</code>。在那之前，這裡的資料只會存在這台裝置。</div>');
     return;
