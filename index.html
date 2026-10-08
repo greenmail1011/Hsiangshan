@@ -35,6 +35,67 @@ img{max-width:100%}
 .clubs .club-note{align-self:center;font-size:12px;color:var(--faint);margin-left:4px}
 body.nogroups .controls,body.nogroups .col-grp,body.nogroups .col-lead,body.nogroups #standingsSec,body.nogroups .sh-move{display:none!important}
 .allcard{--tc:var(--accent)}
+/* 項目（activities）與計時器 */
+.act-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.act-chip{height:40px;padding:0 16px;border-radius:10px;border:1px solid var(--line-strong);background:var(--surface);font-weight:700;font-size:15px;display:inline-flex;align-items:center;gap:8px}
+.act-chip small{font-weight:500;color:var(--muted);font-size:12px}
+.act-chip:hover{border-color:var(--accent)}
+.act-chip[aria-current="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.act-chip[aria-current="true"] small{color:rgba(255,255,255,.85)}
+.act-add{border-style:dashed;color:var(--accent);background:transparent}
+.act-new{display:grid;gap:12px;margin-bottom:16px}
+.act-new .row{align-items:center}
+.act-new .in{width:auto;flex:1 1 160px}
+.act-new select.in{flex:0 1 auto;padding-right:28px}
+.presets{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.presets .lbl{margin-right:4px}
+.preset{height:30px;padding:0 12px;border-radius:999px;border:1px dashed var(--line-strong);font-size:13px;color:var(--muted)}
+.preset:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.act-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.act-grid{grid-template-columns:minmax(0,1fr)}}
+.act-col{display:grid;gap:16px;min-width:0}
+.sw{display:grid;gap:12px}
+.sw-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.sw-top .sec{margin:0}
+.sw-time{font-family:var(--f-num);font-weight:700;font-size:clamp(60px,10vw,104px);line-height:.95;letter-spacing:.01em;font-variant-numeric:tabular-nums;color:var(--ink)}
+.sw.running .sw-time{color:var(--accent)}
+.sw-btns{display:flex;gap:8px;flex-wrap:wrap}
+.sw-btns .btn{height:50px;min-width:104px;font-size:17px;border-radius:12px}
+.sw-btns .sw-go{background:var(--plus);border-color:var(--plus);color:#fff}
+.sw.running .sw-btns .sw-go{background:var(--minus);border-color:var(--minus)}
+.sw-help{font-size:12.5px;color:var(--muted);margin:0}
+.sw-help kbd{font-family:var(--f-num);font-size:12px;border:1px solid var(--line-strong);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:var(--surface)}
+.laps{list-style:none;margin:0;padding:0;display:grid;gap:4px;max-height:280px;overflow:auto}
+.laps li{display:grid;grid-template-columns:3.4em auto auto minmax(0,1fr);gap:10px;align-items:center;padding:6px 10px;border-radius:9px;background:var(--surface-2);font-variant-numeric:tabular-nums}
+.lap-no{color:var(--muted);font-size:13px}
+.lap-total{font-family:var(--f-num);font-weight:700;font-size:21px}
+.lap-split{color:var(--muted);font-size:13px}
+.laps select{justify-self:end;height:34px;border-radius:8px;border:1px solid var(--line-strong);background:var(--surface);font:inherit;font-size:14px;max-width:100%;color:var(--ink)}
+.lap-who{justify-self:end;font-weight:700;color:var(--plus);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.part-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.part-head .sec{margin:0}
+.parts{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,150px),1fr));gap:8px}
+.part-btn{width:100%;min-height:60px;display:grid;gap:1px;align-content:center;justify-items:start;text-align:left;padding:8px 12px;border-radius:12px;background:var(--surface-2);border:1.5px solid transparent}
+.part-btn:hover{border-color:var(--accent)}
+.part-btn .nm{font-size:16px}
+.part-btn .en{font-size:14px}
+.part-btn .pv{font-family:var(--f-num);font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums}
+.part.done .part-btn{background:var(--plus-soft);border-color:color-mix(in srgb,var(--plus) 45%,transparent)}
+.part.done .pv{color:var(--plus);font-weight:700}
+.parts.armed .part:not(.done) .part-btn{border-color:var(--line-strong);background:var(--surface)}
+.part-edit{display:flex;gap:6px;align-items:center;min-height:60px;padding:6px 6px 6px 12px;border-radius:12px;background:var(--surface);border:1.5px solid var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.part-edit b{font-size:14px;white-space:nowrap}
+.part-edit input{width:100%;min-width:0;height:40px;border:none;font-family:var(--f-num);font-size:22px;font-weight:700;color:var(--accent);background:transparent;outline:none}
+.part-edit .btn{height:36px;padding:0 10px}
+.lb-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.lb-head .sec{margin:0}
+table.lb td{padding:8px 8px}
+table.lb td.big{font-size:24px}
+.lb .who b{font-size:15px}
+.act-admin{justify-content:flex-end;margin-top:8px}
+.act-empty{text-align:center;padding:36px 16px}
+.act-empty h2{margin:0 0 6px;font-size:18px}
+.act-empty p{margin:0 0 14px;color:var(--muted)}
 .allcard .members{grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr))}
 .banner{display:flex;align-items:flex-start;gap:10px;background:#FFF6DA;border:1px solid #F1D27A;color:#5C4300;border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:14px}
 .banner b{font-weight:700}
@@ -193,6 +254,31 @@ td.rkn.rk-top{color:var(--accent);font-weight:700}
 .namebtn:hover{text-decoration-color:var(--accent)}
 .gtag{--tc:var(--muted);--tc-ink:#fff;display:inline-flex;align-items:center;gap:6px;font-size:13.5px}
 .check.lead input{accent-color:var(--t4)}
+/* 黃牌／紅牌 */
+.yc,.rc{display:inline-block;width:10px;height:14px;border-radius:2px;transform:rotate(-8deg);box-shadow:inset 0 0 0 1px rgba(0,0,0,.14),0 1px 1px rgba(0,0,0,.12)}
+.yc{background:#F7C51E}.rc{background:#E2382D}
+.cardset{display:inline-flex;gap:3px;align-items:center;margin-left:4px;vertical-align:-1px}
+.bench{display:inline-block;font-size:11px;font-weight:700;line-height:1;padding:3px 6px;border-radius:5px;background:#FFF1C7;color:#7A5200;white-space:nowrap}
+.bench.red{background:var(--minus-soft);color:var(--minus)}
+.chip.benched{background:repeating-linear-gradient(-45deg,var(--surface-2) 0 9px,#FBF1D3 9px 18px)}
+.chip.benched.redcard{background:repeating-linear-gradient(-45deg,var(--surface-2) 0 9px,#FBE1DE 9px 18px)}
+.redalert{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--minus-soft);border:1px solid color-mix(in srgb,var(--minus) 35%,transparent);color:#7C1D16;border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:14px}
+.redalert b{font-weight:700}
+.redalert .btn{margin-left:auto;color:var(--minus);border-color:color-mix(in srgb,var(--minus) 40%,transparent)}
+.cards-sec .row-between{margin-bottom:8px}
+.card-status{font-size:13.5px;font-weight:700;display:inline-flex;align-items:center;gap:6px}
+.card-status.out{color:var(--minus)}
+.card-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.card-btn{height:48px;border-radius:12px;font-weight:700;font-size:16px;display:inline-flex;align-items:center;justify-content:center;gap:10px;border:1.5px solid}
+.card-btn .yc,.card-btn .rc{width:14px;height:19px}
+.card-btn.y{background:#FFF6D6;border-color:#EBC44A;color:#6B4E00}
+.card-btn.r{background:var(--minus-soft);border-color:color-mix(in srgb,var(--minus) 45%,transparent);color:var(--minus)}
+.card-btn:hover{filter:brightness(.97)}
+.creason{height:30px;padding:0 11px;border-radius:999px;border:1px solid var(--line-strong);font-size:13px}
+.creason[aria-pressed="true"]{background:#FFF1C7;border-color:#EBC44A;color:#6B4E00;font-weight:700}
+.contact-chk{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--minus);white-space:nowrap}
+.contact-chk input{width:18px;height:18px;accent-color:var(--plus)}
+.contact-chk.done{color:var(--plus)}
 .pill{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--minus-soft);color:var(--minus);margin-left:6px;vertical-align:2px}
 .acts{display:flex;gap:6px;justify-content:flex-end}
 .mini{width:40px;height:34px;border-radius:8px;font-family:var(--f-num);font-size:17px;font-weight:700}
@@ -314,10 +400,12 @@ textarea.in{height:auto;min-height:130px;padding:10px;resize:vertical;line-heigh
     <nav class="tabs" role="tablist" aria-label="切換畫面">
       <button role="tab" id="tab-groups" data-tab="groups" aria-selected="true" aria-controls="view-groups">分組</button>
       <button role="tab" id="tab-rank" data-tab="rank" aria-selected="false" aria-controls="view-rank">積分榜</button>
+      <button role="tab" id="tab-acts" data-tab="acts" aria-selected="false" aria-controls="view-acts">項目</button>
       <button role="tab" id="tab-roster" data-tab="roster" aria-selected="false" aria-controls="view-roster">名單設定</button>
     </nav>
     <div class="userbox"><p class="sync" id="sync" data-state="loading" aria-live="polite"><span class="dot"></span><span id="syncText">連線中…</span></p><span id="userEmail" hidden></span><button id="logoutBtn" hidden>登出</button></div>
   </header>
+  <div class="redalert" id="redAlert" hidden></div>
 
   <main>
     <section id="view-groups" class="view" role="tabpanel" aria-labelledby="tab-groups">
@@ -364,10 +452,84 @@ textarea.in{height:auto;min-height:130px;padding:10px;resize:vertical;line-heigh
           <tbody id="rankBody"></tbody>
         </table>
       </div>
+      <div id="cardsSec">
+        <div class="log-head">
+          <h2 class="sec">今天的黃牌／紅牌 <span class="muted">每堂課重新累積；3 張黃牌或 1 張紅牌＝今天只能觀摩</span></h2>
+        </div>
+        <ul class="log" id="cardsToday"></ul>
+        <div class="log-head" id="pendingHead">
+          <h2 class="sec">紅牌待聯絡家長 <span class="muted">聯絡完請打勾</span></h2>
+        </div>
+        <ul class="log" id="pendingList"></ul>
+      </div>
       <div class="log-head">
         <h2 class="sec">今日加分紀錄 <span class="muted">按錯了可以在這裡取消</span></h2>
       </div>
       <ul class="log" id="todayLog"></ul>
+    </section>
+
+    <section id="view-acts" class="view" role="tabpanel" aria-labelledby="tab-acts" hidden>
+      <div class="act-bar" id="actBar"></div>
+      <form class="panel act-new" id="actNew" autocomplete="off" hidden>
+        <h2 class="sec">新增項目</h2>
+        <div class="presets"><span class="lbl">常用：</span>
+          <button type="button" class="preset" data-preset="懸停王|秒|high">懸停王（秒，越久越好）</button>
+          <button type="button" class="preset" data-preset="穿環計時|秒|low">穿環計時（秒，越快越好）</button>
+          <button type="button" class="preset" data-preset="射門進球|次|high">射門進球（次，越多越好）</button>
+        </div>
+        <div class="row">
+          <input class="in" id="actName" placeholder="項目名稱，例如：懸停王" maxlength="20" aria-label="項目名稱" required>
+          <select class="in" id="actUnit" aria-label="單位">
+            <option value="秒">秒（用計時器）</option><option value="次">次</option><option value="分數">分數</option><option value="圈">圈</option><option value="公尺">公尺</option>
+          </select>
+          <select class="in" id="actBetter" aria-label="比較方式">
+            <option value="high">數字越大越好</option><option value="low">數字越小越好</option>
+          </select>
+        </div>
+        <div class="row"><button class="btn primary" type="submit">建立項目</button><button class="btn" type="button" id="actNewCancel">取消</button></div>
+      </form>
+      <div class="panel act-empty" id="actEmpty" hidden>
+        <h2>這個社團還沒有項目</h2>
+        <p>例如「懸停王」：計時器開始後，誰的無人機落地就點誰，秒數會自動記下來。</p>
+        <button class="btn primary" data-act-new>新增項目</button>
+      </div>
+      <div class="act-grid" id="actMain" hidden>
+        <div class="act-col">
+          <div class="panel sw" id="swPanel">
+            <div class="sw-top"><h2 class="sec">多圈計時器</h2><span class="muted" id="swInfo"></span></div>
+            <div class="sw-time" id="swTime" aria-live="off">00:00.00</div>
+            <div class="sw-btns">
+              <button class="btn sw-go" id="swGo">開始</button>
+              <button class="btn" id="swLap" disabled>記一圈</button>
+              <button class="btn" id="swReset" disabled>重設</button>
+            </div>
+            <p class="sw-help">計時中點下面的學生名字，就把當下秒數記給他。也可以按「記一圈」再從清單指定學生。鍵盤：<kbd>空白鍵</kbd> 開始／暫停、<kbd>L</kbd> 記一圈。</p>
+            <ol class="laps" id="swLaps"></ol>
+          </div>
+          <div class="panel">
+            <div class="part-head"><h2 class="sec">參加學生 <span class="muted" id="partCount"></span></h2><div class="seg" id="partFilter" role="radiogroup" aria-label="篩選組別"></div></div>
+            <ul class="parts" id="parts"></ul>
+            <p class="sw-help" id="partHelp" style="margin-top:10px"></p>
+          </div>
+        </div>
+        <div class="act-col">
+          <div class="panel">
+            <div class="lb-head"><h2 class="sec" id="lbTitle">排行榜</h2>
+              <div class="seg" id="lbScope" role="radiogroup" aria-label="排行範圍">
+                <button role="radio" data-scope="all" aria-checked="true">全部</button>
+                <button role="radio" data-scope="today" aria-checked="false">今天</button>
+              </div>
+            </div>
+            <div class="table-wrap"><table class="lb"><tbody id="lbBody"></tbody></table></div>
+            <div class="row" style="margin-top:10px"><button class="btn sm" id="awardBtn">依名次加分（第1名 +3、第2名 +2、第3名 +1）</button></div>
+          </div>
+          <div class="panel">
+            <h2 class="sec">最近紀錄</h2>
+            <ul class="log" id="actLog"></ul>
+            <div class="row act-admin"><button class="linkbtn" id="actRename">改項目名稱</button><button class="linkbtn" id="actDelete">刪除這個項目</button></div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section id="view-roster" class="view" role="tabpanel" aria-labelledby="tab-roster" hidden>
@@ -465,14 +627,15 @@ const $$ = s => [...document.querySelectorAll(s)];
 
 /* ---------- state ---------- */
 let db = null;
-const base = { students: new Map(), clubs: new Map() };  // server truth (or local): students of the current club, settings of every club
+const base = { students: new Map(), clubs: new Map(), acts: new Map() };  // server truth (or local): students of the current club, settings of every club
 const queues = new Map();                               // path -> {busy, ops[]}
 let inflight = 0;
 const S = {
   mode: 'loading', ready: false,
   students: new Map(), settings: normSettings(null),
   club: 'main', clubs: [], tab: 'groups', rankSort: 'total',
-  sheetId: null, sheetReason: '', sheetReturn: null, enEditId: null,
+  acts: new Map(), actId: null, actsReady: false, actEdit: null, partFilter: 'all', lbScope: 'all', actNewOpen: false,
+  sheetId: null, sheetReason: '', cardReason: '', sheetReturn: null, enEditId: null,
   error: null, undo: null
 };
 const bumps = new Map();
@@ -487,6 +650,15 @@ const CLUB_DEFAULTS = { main: { name: '香山國小', groups: true, ord: 1 } };
 const settingsPath = c => 'settings/' + c;
 const studentsColl = c => c === 'main' ? 'students' : 'clubs/' + c + '/students';
 const studentPath = id => studentsColl(S.club) + '/' + id;
+const actsColl = c => 'clubs/' + c + '/activities';
+const actPath = id => actsColl(S.club) + '/' + id;
+const ACT_MAX_RECORDS = 500;
+function normAct(id, d){
+  d = d || {};
+  return { id, name: String(d.name || '項目'), unit: String(d.unit || '秒'), better: d.better === 'low' ? 'low' : 'high',
+    ord: Number(d.ord) || 0, created: Number(d.created) || 0,
+    records: Array.isArray(d.records) ? d.records.filter(r => r && typeof r.v === 'number' && r.sid) : [] };
+}
 function clubInfo(id, d){
   const def = CLUB_DEFAULTS[id] || {}; d = d || {};
   return { id, name: String(d.name || def.name || id), groups: d.groups === undefined ? (def.groups !== undefined ? def.groups : true) : !!d.groups,
@@ -499,6 +671,21 @@ const inGroup = s => !!s.grp && gIndex(s.grp) >= 1 && gIndex(s.grp) <= S.setting
 const groupName = g => ((S.settings.names[g] || '').trim()) || `第${gIndex(g)}組`;
 const enHTML = s => s.en ? `<span class="en">${esc(s.en)}</span>` : '';
 const cleanEn = v => String(v || '').replace(/\s+/g, ' ').trim().slice(0, 20);
+const CARD_MAX = 60;
+const CARD_REASONS = ['危險飛行', '不聽指令', '干擾同學', '器材使用不當', '言語不當'];
+function cardsToday(s, t0){
+  t0 = t0 || todayStart();
+  const list = s.cards.filter(c => c.t >= t0);
+  const y = list.filter(c => c.c === 'y').length, r = list.filter(c => c.c === 'r').length;
+  return { list, y, r, out: y >= 3 || r >= 1 };
+}
+const isBenched = s => cardsToday(s).out;
+const pendingReds = s => s.cards.filter(c => c.c === 'r' && !c.done);
+function cardsHTML(s, t0){
+  const ct = cardsToday(s, t0);
+  if (!ct.y && !ct.r) return '';
+  return `<span class="cardset" aria-label="今天黃牌 ${ct.y} 張${ct.r ? '、紅牌' : ''}">${'<i class="yc"></i>'.repeat(Math.min(ct.y, 5))}${ct.r ? '<i class="rc"></i>' : ''}</span>`;
+}
 const signed = n => (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n);
 function todayStart(){ const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); }
 function todayPts(s, t0){ let a = 0; for (const h of s.hist) if (h && h.t >= t0) a += Number(h.d) || 0; return a; }
@@ -511,7 +698,8 @@ function normStudent(id, d){
   d = d || {};
   return { id, cls: String(d.cls || ''), name: String(d.name || ''), en: String(d.en || ''), pts: Number(d.pts) || 0,
     absent: !!d.absent, lead: !!d.lead, grp: String(d.grp || ''), ord: Number(d.ord) || 0,
-    hist: Array.isArray(d.hist) ? d.hist : [] };
+    hist: Array.isArray(d.hist) ? d.hist : [],
+    cards: Array.isArray(d.cards) ? d.cards.filter(c => c && (c.c === 'y' || c.c === 'r') && c.k) : [] };
 }
 function normSettings(d){
   d = d || {};
@@ -530,10 +718,15 @@ function applyOp(cur, op){
 }
 function derive(){
   const sp = settingsPath(S.club), pre = studentsColl(S.club) + '/';
+  const ap = actsColl(S.club) + '/';
   const st = new Map(base.students); let set = base.clubs.get(S.club) || null;
+  const ac = new Map(base.acts);
   for (const [path, q] of queues){
     for (const op of q.ops){
       if (path === sp) set = applyOp(set, op);
+      else if (path.startsWith(ap) && path.indexOf('/', ap.length) === -1){
+        const id = path.slice(ap.length); const r = applyOp(ac.get(id) || null, op); if (r) ac.set(id, r); else ac.delete(id);
+      }
       else if (path.startsWith(pre) && path.indexOf('/', pre.length) === -1){
         const id = path.slice(pre.length); const r = applyOp(st.get(id) || null, op); if (r) st.set(id, r); else st.delete(id);
       }
@@ -541,6 +734,7 @@ function derive(){
   }
   S.students = new Map([...st].map(([id, d]) => [id, normStudent(id, d)]));
   S.settings = normSettings(set);
+  S.acts = new Map([...ac].map(([id, d]) => [id, normAct(id, d)]));
   const ids = new Set(['main', ...base.clubs.keys()]);
   S.clubs = [...ids].map(id => clubInfo(id, id === S.club ? set : base.clubs.get(id)))
     .sort((x, y) => x.ord - y.ord || x.name.localeCompare(y.name, 'zh-Hant'));
@@ -549,7 +743,9 @@ function write(path, kind, data){
   if (S.mode === 'local'){
     const op = { kind, data };
     const sp = settingsPath(S.club), pre = studentsColl(S.club) + '/';
+    const ap = actsColl(S.club) + '/';
     if (path === sp) base.clubs.set(S.club, applyOp(base.clubs.get(S.club) || null, op));
+    else if (path.startsWith(ap)){ const id = path.slice(ap.length); const r = applyOp(base.acts.get(id) || null, op); if (r) base.acts.set(id, r); else base.acts.delete(id); }
     else if (path.startsWith(pre)){ const id = path.slice(pre.length); const r = applyOp(base.students.get(id) || null, op); if (r) base.students.set(id, r); else base.students.delete(id); }
     saveLocal(); derive(); scheduleRender(); return;
   }
@@ -590,7 +786,7 @@ function writeFailed(e){
   S.error = msg; showToast(msg, null, true);
 }
 function saveLocal(){
-  try { localStorage.setItem(LS_KEY, JSON.stringify({ students: [...base.students].map(([id, d]) => ({ id, ...d })), settings: base.clubs.get('main') || null })); } catch (e) {}
+  try { localStorage.setItem(LS_KEY, JSON.stringify({ students: [...base.students].map(([id, d]) => ({ id, ...d })), settings: base.clubs.get('main') || null, acts: [...base.acts].map(([id, d]) => ({ id, ...d })) })); } catch (e) {}
 }
 function loadLocal(){
   try {
@@ -598,6 +794,7 @@ function loadLocal(){
     const o = JSON.parse(raw);
     base.students = new Map((o.students || []).map(s => { const { id, ...rest } = s; return [id, rest]; }));
     if (o.settings) base.clubs.set('main', o.settings);
+    base.acts = new Map((o.acts || []).map(a => { const { id, ...rest } = a; return [id, rest]; }));
   } catch (e) {}
 }
 
@@ -613,6 +810,18 @@ function subscribe(){
     markReady(); derive(); applyClubUI(); scheduleRender(); syncUI();
   }, subErr);
   subscribeStudents();
+  subscribeActs();
+}
+let unsubActs = null;
+function subscribeActs(){
+  if (unsubActs) try { unsubActs(); } catch (e) {}
+  S.actsReady = false;
+  const club = S.club;
+  unsubActs = db.collection(actsColl(club)).onSnapshot(snap => {
+    if (club !== S.club) return;
+    base.acts = new Map(snap.docs.map(d => [d.id, d.data()]));
+    S.actsReady = true; derive(); scheduleRender();
+  }, subErr);
 }
 function subscribeStudents(){
   if (unsubStudents) try { unsubStudents(); } catch (e) {}
@@ -632,8 +841,9 @@ function switchClub(id){
   try { localStorage.setItem(LS_KEY + '-club', id); } catch (e) {}
   const h = id === 'main' ? '' : '#' + id;
   if (location.hash !== h) try { history.replaceState(null, '', location.pathname + location.search + h); } catch (e) {}
-  base.students = new Map();
-  if (S.mode === 'db'){ S.ready = false; subscribeStudents(); }
+  base.students = new Map(); base.acts = new Map();
+  swReset(true); S.actEdit = null; S.partFilter = 'all'; S.actId = null;
+  if (S.mode === 'db'){ S.ready = false; subscribeStudents(); subscribeActs(); }
   derive(); applyClubUI();
   if (!groupsOn() && S.tab === 'groups') { /* the 學生 view replaces 分組 */ }
   render();
@@ -903,8 +1113,10 @@ function flushDeferred(){ if (deferred){ deferred = false; scheduleRender(); } }
 function render(){
   if (dragging){ deferred = true; return; }
   syncUI();
+  renderRedAlert();
   if (S.tab === 'groups'){ if (editingIn($('#board'))) deferred = true; else renderGroups(); }
   else if (S.tab === 'rank') renderRank();
+  else if (S.tab === 'acts'){ if (editingIn($('#view-acts'))) deferred = true; else renderActs(); }
   else { if (editingIn($('#rosterBody'))) deferred = true; else renderRosterBody(); renderRosterSide(); }
   if (S.sheetId){ if (editingIn($('#sheetBody'))) deferred = true; else renderSheet(); }
   bumps.clear();
@@ -930,9 +1142,10 @@ function chipHTML(s){
   if (S.enEditId === s.id) en = `<input class="en-input" id="en-in-${id}" data-id="${id}" value="${esc(s.en)}" maxlength="20" placeholder="英文名" autocomplete="off" autocapitalize="words" spellcheck="false" aria-label="${esc(s.name)} 的英文名">`;
   else if (s.en) en = `<button class="en-btn" data-act="en" title="點一下修改英文名" aria-label="${esc(s.name)} 的英文名 ${esc(s.en)}，點一下修改">${esc(s.en)}</button>`;
   else en = `<button class="en-add" data-act="en" aria-label="幫 ${esc(s.name)} 加英文名">+英文</button>`;
-  return `<li class="chip${s.absent ? ' absent' : ''}" data-id="${id}">
+  const ctd = cardsToday(s);
+  return `<li class="chip${s.absent ? ' absent' : ''}${ctd.out ? ' benched' : ''}${ctd.r ? ' redcard' : ''}" data-id="${id}">
     <div class="chip-main" data-act="open">
-      <button class="nm-btn" data-act="open" aria-label="${esc(s.name)}，${esc(s.cls)}，${s.pts} 分。開啟加分與換組"><span class="nm">${esc(s.name)}</span></button>${en}<button class="cls-btn" data-act="open" tabindex="-1" aria-hidden="true">${esc(s.cls)}${s.absent ? ' · 缺席' : ''}</button>
+      <button class="nm-btn" data-act="open" aria-label="${esc(s.name)}，${esc(s.cls)}，${s.pts} 分。開啟加分與換組"><span class="nm">${esc(s.name)}</span></button>${en}<button class="cls-btn" data-act="open" tabindex="-1" aria-hidden="true">${esc(s.cls)}${s.absent ? ' · 缺席' : ''}</button>${cardsHTML(s)}${isBenched(s) ? `<span class="bench${cardsToday(s).r ? ' red' : ''}">觀摩</span>` : ''}
     </div>
     <span class="pts${bump}">${s.pts}</span>
     <button class="chip-plus" data-act="plus" aria-label="${esc(s.name)} 加 1 分"${s.absent ? ' disabled' : ''}>+1</button>
@@ -1052,7 +1265,7 @@ function renderRank(){
     const r = rk.get(s.id), gi = inGroup(s) ? gIndex(s.grp) : 0;
     return `<tr>
       <td class="rkn${r <= 3 && s.pts > 0 ? ' rk-top' : ''}">${r}</td>
-      <td><button class="namebtn" data-act="open" data-id="${esc(s.id)}">${esc(s.name)}</button>${enHTML(s)}${s.absent ? '<span class="pill">缺席</span>' : ''}</td>
+      <td><button class="namebtn" data-act="open" data-id="${esc(s.id)}">${esc(s.name)}</button>${enHTML(s)}${cardsHTML(s)}${s.absent ? '<span class="pill">缺席</span>' : ''}${isBenched(s) ? '<span class="pill">觀摩</span>' : ''}</td>
       <td class="muted">${esc(s.cls) || '—'}</td>
       <td class="col-grp">${gi ? `<span class="gtag" style="${teamVars(gi)}"><span class="bib xs" aria-hidden="true">${gi}</span>${esc(groupName(s.grp))}</span>` : '<span class="dim">待分組</span>'}</td>
       <td class="r tnum ${s.td ? '' : 'dim'}">${s.td ? signed(s.td) : '—'}</td>
@@ -1061,6 +1274,25 @@ function renderRank(){
     </tr>`;
   }).join('') : '<tr><td colspan="7" class="muted">還沒有學生，到「名單設定」加入名單。</td></tr>';
   renderLog();
+  renderCardsSec();
+}
+function renderCardsSec(){
+  const t0 = todayStart(), all = sortRoster([...S.students.values()]);
+  const today = all.map(s => ({ s, ct: cardsToday(s, t0) })).filter(x => x.ct.list.length);
+  $('#cardsToday').innerHTML = today.length ? today.map(({ s, ct }) => `<li><span class="when">${ct.out ? '<span class="bench' + (ct.r ? ' red' : '') + '">觀摩</span>' : ''}</span><span class="who"><button class="namebtn" data-act="open" data-id="${esc(s.id)}">${esc(s.name)}</button>${cardsHTML(s, t0)}<span>${esc(ct.list.map(c => c.r).filter(Boolean).join('、'))}</span></span><span class="d ${ct.r ? 'neg' : ''}">${ct.r ? '紅牌' : `黃 ${ct.y}/3`}</span><span></span></li>`).join('')
+    : '<li style="display:block"><span class="none">今天沒有人拿到牌</span></li>';
+  const pend = [];
+  all.forEach(s => pendingReds(s).forEach(c => pend.push({ s, c })));
+  pend.sort((a, b) => b.c.t - a.c.t);
+  $('#pendingHead').hidden = $('#pendingList').hidden = !pend.length;
+  $('#pendingList').innerHTML = pend.map(({ s, c }) => `<li><span class="when">${fmtTime(c.t)}</span><span class="who"><button class="namebtn" data-act="open" data-id="${esc(s.id)}">${esc(s.name)}</button><span>${esc(s.cls)}${c.r ? ' · ' + esc(c.r) : ''}</span></span><span></span><label class="contact-chk"><input type="checkbox" data-contact="${esc(s.id)}|${esc(c.k)}">已聯絡家長</label></li>`).join('');
+}
+function renderRedAlert(){
+  const el = $('#redAlert');
+  if (!S.ready){ el.hidden = true; return; }
+  const names = [...S.students.values()].filter(s => pendingReds(s).length).map(s => s.name);
+  el.hidden = !names.length;
+  if (names.length) el.innerHTML = `<span class="rc" aria-hidden="true"></span><span><b>紅牌待聯絡家長：</b>${names.map(esc).join('、')}</span><button class="btn sm" data-goto-cards>去處理</button>`;
 }
 let logRows = new Map();
 function renderLog(){
@@ -1134,15 +1366,63 @@ function renderSheet(){
     ${reasons.length ? `<section class="sh-sec"><h3>加分理由（可不選）</h3><div class="reasons">${reasons.map(r => `<button class="rchip" data-reason="${esc(r)}" aria-pressed="${S.sheetReason === r}">${esc(r)}</button>`).join('')}</div></section>` : ''}
     <div class="deltas">${[-1, 1, 2, 3, 5].map(d => `<button class="delta ${d < 0 ? 'neg' : 'pos'}" data-delta="${d}" aria-label="${d < 0 ? '減' : '加'} ${Math.abs(d)} 分">${signed(d)}</button>`).join('')}</div>
     <section class="sh-sec sh-move"><h3>移到</h3><div class="moveto">${mv}</div></section>
+    ${(() => {
+      const ct = cardsToday(s);
+      const status = ct.r ? '<span class="card-status out"><i class="rc"></i>紅牌：今天觀摩，請聯絡家長</span>'
+        : ct.y >= 3 ? '<span class="card-status out">' + '<i class="yc"></i>'.repeat(3) + '3 張黃牌：今天只能觀摩</span>'
+        : ct.y ? `<span class="card-status">${'<i class="yc"></i>'.repeat(ct.y)}黃牌 ${ct.y}/3</span>` : '<span class="card-status muted">今天還沒有牌</span>';
+      const list = ct.list.slice().reverse().map(c => `<li><span class="when">${fmtTime(c.t)}</span><span>${c.c === 'r' ? '<i class="rc"></i> 紅牌' : '<i class="yc"></i> 黃牌'}${c.r ? '・' + esc(c.r) : ''}</span><span>${c.c === 'r' ? `<label class="contact-chk${c.done ? ' done' : ''}"><input type="checkbox" data-contact="${esc(s.id)}|${esc(c.k)}"${c.done ? ' checked' : ''}>${c.done ? '已聯絡家長' : '待聯絡家長'}</label>` : ''}</span><button class="rec-cancel" data-cancel-card="${esc(c.k)}">取消</button></li>`).join('');
+      const olderPending = pendingReds(s).filter(c => !(c.t >= todayStart()));
+      const older = olderPending.map(c => `<li><span class="when">${fmtTime(c.t)}</span><span><i class="rc"></i> 紅牌${c.r ? '・' + esc(c.r) : ''}</span><span><label class="contact-chk"><input type="checkbox" data-contact="${esc(s.id)}|${esc(c.k)}">待聯絡家長</label></span><span></span></li>`).join('');
+      return `<section class="sh-sec cards-sec"><div class="row-between"><h3>黃牌／紅牌（每堂課重新累積）</h3>${status}</div>
+        <div class="reasons">${CARD_REASONS.map(r => `<button class="creason" data-creason="${esc(r)}" aria-pressed="${S.cardReason === r}">${esc(r)}</button>`).join('')}</div>
+        <div class="card-btns"><button class="card-btn y" data-card="y"><i class="yc"></i>黃牌</button><button class="card-btn r" data-card="r"><i class="rc"></i>紅牌</button></div>
+        ${list || older ? `<ol class="hist" style="margin-top:8px">${list}${older}</ol>` : ''}</section>`;
+    })()}
     <section class="sh-sec row-between"><h3>今天出缺席</h3><button class="toggle" data-act="absent" aria-pressed="${s.absent}">${s.absent ? '缺席（按一下改出席）' : '出席'}</button></section>
     <section class="sh-sec"><h3>最近紀錄</h3>${hist.length ? `<ol class="hist">${hist.map(h => `<li><span class="when">${fmtTime(h.t)}</span><span>${esc(h.r || (h.d < 0 ? '扣分' : '加分'))}</span><span class="d ${h.d < 0 ? 'neg' : 'pos'}">${signed(Number(h.d) || 0)}</span><button class="rec-cancel" data-cancel="${esc(h.k)}" aria-label="取消這筆 ${signed(Number(h.d) || 0)}">取消</button></li>`).join('')}</ol>` : '<p class="muted" style="margin:0;font-size:13.5px">還沒有紀錄</p>'}</section>`;
 }
+
+/* ---------- 黃牌／紅牌 ---------- */
+function giveCard(id, c, reason){
+  const s = S.students.get(id); if (!s) return;
+  const before = cardsToday(s);
+  const rec = { k: uid('c'), c, t: Date.now(), r: reason || '' };
+  patchStudent(id, { cards: [...s.cards, rec].slice(-CARD_MAX) });
+  const undo = () => { const s2 = S.students.get(id); if (s2) patchStudent(id, { cards: s2.cards.filter(x => x.k !== rec.k) }); };
+  let msg;
+  if (c === 'r') msg = `${s.name} 紅牌：今天觀摩，記得聯絡家長`;
+  else if (before.y + 1 >= 3 && !before.out) msg = `${s.name} 第 3 張黃牌：今天只能看同學操作`;
+  else msg = `${s.name} 黃牌（今天第 ${before.y + 1} 張）`;
+  showToast(msg, undo);
+}
+function cancelCard(id, k){
+  const s = S.students.get(id); if (!s) return;
+  const rec = s.cards.find(x => x.k === k); if (!rec) return;
+  patchStudent(id, { cards: s.cards.filter(x => x.k !== k) });
+  showToast(`已取消 ${s.name} 的${rec.c === 'r' ? '紅牌' : '黃牌'}`, () => { const s2 = S.students.get(id); if (s2) patchStudent(id, { cards: [...s2.cards, rec].sort((a, b) => a.t - b.t).slice(-CARD_MAX) }); });
+}
+function setContacted(id, k, done){
+  const s = S.students.get(id); if (!s) return;
+  patchStudent(id, { cards: s.cards.map(x => x.k === k ? { ...x, done: !!done, dt: done ? Date.now() : 0 } : x) });
+  if (done) showToast(`已記錄：聯絡過 ${s.name} 的家長`);
+}
+document.addEventListener('change', e => {
+  const cb = e.target.closest && e.target.closest('input[data-contact]'); if (!cb) return;
+  const [id, k] = cb.dataset.contact.split('|');
+  setContacted(id, k, cb.checked);
+});
+$('#redAlert').addEventListener('click', e => {
+  if (!e.target.closest('[data-goto-cards]')) return;
+  setTab('rank');
+  requestAnimationFrame(() => { const el = $('#cardsSec'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+});
 
 /* ---------- sheet / confirm / toast ---------- */
 function openSheet(id){
   if (!S.students.has(id)) return;
   S.sheetReturn = document.activeElement;
-  S.sheetId = id; S.sheetReason = '';
+  S.sheetId = id; S.sheetReason = ''; S.cardReason = '';
   $('#sheet').hidden = false; renderSheet();
   const c = $('#sheetBody [data-close]'); if (c) c.focus();
 }
@@ -1161,9 +1441,19 @@ $('#sheet').addEventListener('keydown', e => {
   if (e.target.matches('#sheetEn') && e.key === 'Enter' && !e.isComposing){ e.preventDefault(); e.target.blur(); }
 });
 $('#sheet').addEventListener('focusout', () => setTimeout(flushDeferred, 0));
-$('#sheet').addEventListener('click', e => {
+$('#sheet').addEventListener('click', async e => {
   const id = S.sheetId; if (!id) return;
   if (e.target.closest('[data-close]')){ closeSheet(); return; }
+  const cr = e.target.closest('[data-creason]');
+  if (cr){ S.cardReason = S.cardReason === cr.dataset.creason ? '' : cr.dataset.creason; renderSheet(); return; }
+  const cd = e.target.closest('[data-card]');
+  if (cd){
+    const s = S.students.get(id); if (!s) return;
+    if (cd.dataset.card === 'r' && !(await confirmBox(`給 ${s.name} 紅牌？`, '今天就只能觀摩，並會列入「待聯絡家長」。', '給紅牌'))) return;
+    giveCard(id, cd.dataset.card, S.cardReason); S.cardReason = ''; return;
+  }
+  const cc = e.target.closest('[data-cancel-card]');
+  if (cc){ cancelCard(id, cc.dataset.cancelCard); return; }
   const cb = e.target.closest('[data-cancel]');
   if (cb){
     const s = S.students.get(id); const h = s && s.hist.find(x => x && x.k === cb.dataset.cancel);
@@ -1218,7 +1508,7 @@ document.addEventListener('keydown', e => {
 function setTab(t){
   S.tab = t;
   $$('.tabs [data-tab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === t)));
-  ['groups', 'rank', 'roster'].forEach(v => { $('#view-' + v).hidden = v !== t; });
+  ['groups', 'rank', 'acts', 'roster'].forEach(v => { $('#view-' + v).hidden = v !== t; });
   try { localStorage.setItem(LS_KEY + '-tab', t); } catch (e) {}
   render();
 }
@@ -1438,7 +1728,7 @@ async function importBackupFile(file){
     const id = /^[A-Za-z0-9_-]{1,60}$/.test(String(x.id || '')) ? String(x.id) : uid('s');
     const n = normStudent(id, x);
     write(studentPath(id), 'set', { cls: n.cls.slice(0, 8), name: n.name.slice(0, 12), en: cleanEn(n.en), pts: n.pts,
-      absent: n.absent, lead: n.lead, grp: n.grp, ord: n.ord, hist: n.hist.filter(Boolean).slice(-HIST_MAX) });
+      absent: n.absent, lead: n.lead, grp: n.grp, ord: n.ord, hist: n.hist.filter(Boolean).slice(-HIST_MAX), cards: n.cards.slice(-CARD_MAX) });
   });
   if (o.settings){
     const ns = normSettings(o.settings);
@@ -1454,9 +1744,325 @@ board.addEventListener('change', e => { if (e.target.matches('.importFileAlt')){
 $('#clubNav').addEventListener('click', e => { const b = e.target.closest('[data-club]'); if (b) switchClub(b.dataset.club); });
 window.addEventListener('hashchange', () => { const h = decodeURIComponent(location.hash.slice(1)); switchClub(h || 'main'); });
 
+
+/* ===================== 項目（activities）＋多圈計時器 ===================== */
+const T = { aid: null, running: false, t0: 0, acc: 0, laps: [], round: 0, done: new Map() };
+const nowMs = () => performance.now();
+const swElapsed = () => T.acc + (T.running ? nowMs() - T.t0 : 0);
+const pad2 = n => String(n).padStart(2, '0');
+function fmtClock(ms){
+  ms = Math.max(0, ms);
+  const m = Math.floor(ms / 60000), sec = Math.floor(ms / 1000) % 60, cs = Math.floor(ms / 10) % 100;
+  return `${pad2(m)}:${pad2(sec)}.${pad2(cs)}`;
+}
+function fmtVal(act, v){
+  if (act.unit === '秒'){
+    if (v >= 60){ const m = Math.floor(v / 60); return `${m}:${(v - m * 60).toFixed(2).padStart(5, '0')}`; }
+    return `${v.toFixed(2)} 秒`;
+  }
+  return `${Number.isInteger(v) ? v : v.toFixed(2)} ${act.unit}`;
+}
+const isTimed = act => !!act && act.unit === '秒';
+function sortedActs(){ return [...S.acts.values()].sort((a, b) => a.ord - b.ord || a.created - b.created); }
+function curAct(){
+  if (S.actId && S.acts.has(S.actId)) return S.acts.get(S.actId);
+  let saved = ''; try { saved = localStorage.getItem(LS_KEY + '-act-' + S.club) || ''; } catch (e) {}
+  const list = sortedActs();
+  const a = (saved && S.acts.get(saved)) || list[list.length - 1] || null;
+  S.actId = a ? a.id : null;
+  return a;
+}
+function selectAct(id){
+  if (id === S.actId) return;
+  if (T.running){ showToast('計時中不能切換項目，請先暫停或重設'); return; }
+  swReset(true);
+  S.actId = id; S.actEdit = null;
+  try { localStorage.setItem(LS_KEY + '-act-' + S.club, id); } catch (e) {}
+  renderActs();
+}
+function better(act, a, b){ return act.better === 'low' ? a < b : a > b; }
+function leaderboard(act, scope){
+  const t0 = todayStart(), m = new Map();
+  for (const r of act.records){
+    if (scope === 'today' && !(r.t >= t0)) continue;
+    let e = m.get(r.sid);
+    if (!e){ e = { sid: r.sid, n: r.n, best: r.v, count: 0, last: 0 }; m.set(r.sid, e); }
+    e.count++; e.last = Math.max(e.last, r.t || 0);
+    if (better(act, r.v, e.best)) e.best = r.v;
+  }
+  const rows = [...m.values()].sort((a, b) => act.better === 'low' ? a.best - b.best : b.best - a.best);
+  let prev = null, rank = 0;
+  rows.forEach((x, i) => { if (x.best !== prev){ rank = i + 1; prev = x.best; } x.rank = rank; });
+  return rows;
+}
+function stuName(sid, fallback){ const s = S.students.get(sid); return s ? s.name : (fallback || '（已刪除）'); }
+
+/* ---------- writes ---------- */
+function createAct(name, unit, better_){
+  const id = uid('a');
+  const ord = sortedActs().reduce((m, a) => Math.max(m, a.ord), 0) + 1;
+  write(actPath(id), 'set', { name, unit, better: better_, ord, created: Date.now(), records: [] });
+  S.actId = id; try { localStorage.setItem(LS_KEY + '-act-' + S.club, id); } catch (e) {}
+  showToast(`已新增項目「${name}」`);
+}
+function addRecord(sid, v, fromLap){
+  const act = curAct(), s = S.students.get(sid);
+  if (!act || !s || !Number.isFinite(v)) return;
+  v = Math.round(v * 100) / 100;
+  const rec = { k: uid('r'), sid, n: s.name, v, t: Date.now(), r: T.round || 0 };
+  write(actPath(act.id), 'update', { records: [...act.records, rec].slice(-ACT_MAX_RECORDS) });
+  if (T.round && isTimed(act)) T.done.set(sid, v);
+  showToast(`${s.name}：${fmtVal(act, v)}`, () => {
+    removeRecord(act.id, rec.k, true);
+    if (T.done.get(sid) === v) T.done.delete(sid);
+    T.laps.forEach(l => { if (l.k === rec.k){ l.sid = ''; l.k = ''; } });
+    renderActs();
+  });
+  return rec.k;
+}
+function removeRecord(aid, k, silent){
+  const act = S.acts.get(aid); if (!act) return;
+  const rec = act.records.find(r => r.k === k); if (!rec) return;
+  write(actPath(aid), 'update', { records: act.records.filter(r => r.k !== k) });
+  if (!silent) showToast(`已刪除 ${stuName(rec.sid, rec.n)} 的 ${fmtVal(act, rec.v)}`, () => {
+    const a2 = S.acts.get(aid); if (a2) write(actPath(aid), 'update', { records: [...a2.records, rec].sort((x, y) => x.t - y.t).slice(-ACT_MAX_RECORDS) });
+  });
+}
+
+/* ---------- stopwatch ---------- */
+let swRaf = 0;
+function swPaint(){
+  const p = $('#swPanel'); if (!p) return;
+  const el = swElapsed();
+  p.classList.toggle('running', T.running);
+  $('#swTime').textContent = fmtClock(el);
+  $('#swGo').textContent = T.running ? '暫停' : (el > 0 ? '繼續' : '開始');
+  $('#swLap').disabled = !(T.running || el > 0);
+  $('#swReset').disabled = !(T.running || el > 0 || T.laps.length);
+  $('#parts').classList.toggle('armed', T.running || el > 0);
+}
+function swLoop(){
+  cancelAnimationFrame(swRaf);
+  const f = () => { $('#swTime').textContent = fmtClock(swElapsed()); if (T.running) swRaf = requestAnimationFrame(f); };
+  f();
+}
+function swToggle(){
+  const act = curAct(); if (!act || !isTimed(act)) return;
+  if (T.running){ T.acc = swElapsed(); T.running = false; }
+  else { if (!T.round) T.round = Date.now(); T.aid = act.id; T.t0 = nowMs(); T.running = true; }
+  swLoop(); swPaint(); renderParts(); renderPartHelp();
+}
+function swLap(sid){
+  const el = swElapsed(); if (!(T.running || el > 0)) return null;
+  const prev = T.laps.length ? T.laps[T.laps.length - 1].total : 0;
+  const lap = { i: T.laps.length + 1, total: el, split: el - prev, sid: '', k: '' };
+  T.laps.push(lap);
+  if (sid){ lap.sid = sid; lap.k = addRecord(sid, Math.floor(el / 10) / 100, true) || ''; }
+  renderLaps(); renderParts(); swPaint();
+  return lap;
+}
+function swReset(quiet){
+  T.running = false; T.acc = 0; T.laps = []; T.round = 0; T.done = new Map(); T.aid = null;
+  cancelAnimationFrame(swRaf);
+  if (!quiet){ swPaint(); renderLaps(); renderParts(); renderPartHelp(); }
+}
+
+/* ---------- rendering ---------- */
+function participants(){
+  let list = [...S.students.values()].filter(s => !s.absent && !isBenched(s));
+  if (groupsOn() && S.partFilter !== 'all') list = list.filter(s => s.grp === S.partFilter);
+  return sortRoster(list);
+}
+function renderActs(){
+  const act = S.ready && S.actsReady ? curAct() : null;
+  const list = sortedActs();
+  $('#actBar').innerHTML = (S.ready && S.actsReady)
+    ? list.map(a => `<button class="act-chip" data-act-id="${esc(a.id)}" aria-current="${a.id === S.actId}">${esc(a.name)}<small>${esc(a.unit)}・${a.better === 'low' ? '越小越好' : '越大越好'}</small></button>`).join('') + `<button class="act-chip act-add" data-act-new>＋ 新增項目</button>`
+    : '<span class="muted">讀取項目中…</span>';
+  $('#actNew').hidden = !S.actNewOpen;
+  $('#actEmpty').hidden = !(S.ready && S.actsReady && !list.length && !S.actNewOpen);
+  $('#actMain').hidden = !act;
+  if (!act) return;
+  $('#swPanel').hidden = !isTimed(act);
+  $('#swInfo').textContent = T.round ? `這一輪已記 ${T.done.size} 人` : '';
+  // group filter
+  const pf = $('#partFilter');
+  if (groupsOn()){
+    const n = S.settings.groupCount; let h = `<button role="radio" data-pf="all" aria-checked="${S.partFilter === 'all'}">全部</button>`;
+    for (let i = 1; i <= n; i++) h += `<button role="radio" data-pf="g${i}" aria-checked="${S.partFilter === 'g' + i}">${esc(groupName('g' + i))}</button>`;
+    pf.innerHTML = h; pf.hidden = false;
+  } else { pf.innerHTML = ''; pf.hidden = true; }
+  swPaint(); renderLaps(); renderParts(); renderPartHelp(); renderLeaderboard(); renderActLog();
+}
+function renderPartHelp(){
+  const act = curAct(); if (!act) return;
+  const armed = T.running || swElapsed() > 0;
+  $('#partHelp').textContent = isTimed(act)
+    ? (armed ? '計時中：點名字就把目前的秒數記給他（綠色代表這一輪已記錄）。' : '按「開始」後點名字記秒數；沒計時的時候點名字，可以直接打數字。')
+    : `點名字輸入成績（${act.unit}）。`;
+}
+function renderParts(){
+  const act = curAct(); if (!act) return;
+  const list = participants();
+  const best = new Map(leaderboard(act, 'all').map(x => [x.sid, x.best]));
+  const benched = [...S.students.values()].filter(s => !s.absent && isBenched(s) && (!groupsOn() || S.partFilter === 'all' || s.grp === S.partFilter)).length;
+  $('#partCount').textContent = `${list.length} 人${benched ? `（${benched} 位觀摩中）` : ''}`;
+  $('#parts').innerHTML = list.map(s => {
+    const id = esc(s.id);
+    if (S.actEdit === s.id) return `<li class="part"><div class="part-edit"><b>${esc(s.name)}</b><input type="number" step="0.01" min="0" inputmode="decimal" id="actIn-${id}" data-sid="${id}" placeholder="${esc(act.unit)}" aria-label="${esc(s.name)} 的${esc(act.name)}成績"><button class="btn sm primary" data-save="${id}">存</button></div></li>`;
+    const doneV = T.done.get(s.id);
+    const sub = doneV !== undefined ? `這輪 ${fmtVal(act, doneV)}` : (best.has(s.id) ? `最佳 ${fmtVal(act, best.get(s.id))}` : '還沒有紀錄');
+    return `<li class="part${doneV !== undefined ? ' done' : ''}"><button class="part-btn" data-sid="${id}"><span><span class="nm">${esc(s.name)}</span>${s.en ? ` <span class="en">${esc(s.en)}</span>` : ''}</span><span class="pv">${sub}</span></button></li>`;
+  }).join('') || '<li class="muted" style="grid-column:1/-1">沒有出席的學生。</li>';
+  $('#parts').classList.toggle('armed', T.running || swElapsed() > 0);
+}
+function renderLaps(){
+  const act = curAct(); const ol = $('#swLaps'); if (!ol) return;
+  if (!act || !T.laps.length){ ol.innerHTML = ''; return; }
+  const free = participants().filter(s => !T.done.has(s.id));
+  ol.innerHTML = T.laps.slice().reverse().map(l => {
+    const who = l.sid
+      ? `<span class="lap-who">${esc(stuName(l.sid))}</span>`
+      : `<select data-lap="${l.i}" aria-label="第 ${l.i} 圈指定給學生"><option value="">指定給…</option>${free.map(s => `<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('')}</select>`;
+    return `<li><span class="lap-no">第 ${l.i} 圈</span><span class="lap-total">${fmtClock(l.total)}</span><span class="lap-split">+${fmtClock(l.split)}</span>${who}</li>`;
+  }).join('');
+}
+function renderLeaderboard(){
+  const act = curAct(); if (!act) return;
+  $$('#lbScope [data-scope]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.scope === S.lbScope)));
+  $('#lbTitle').textContent = `${act.name} 排行榜`;
+  const rows = leaderboard(act, S.lbScope);
+  $('#lbBody').innerHTML = rows.length ? rows.map(x => {
+    const s = S.students.get(x.sid);
+    return `<tr><td class="rkn${x.rank <= 3 ? ' rk-top' : ''}">${x.rank}</td>
+      <td><span class="who"><b>${esc(stuName(x.sid, x.n))}</b>${s && s.en ? ` <span class="en">${esc(s.en)}</span>` : ''}</span><div class="muted" style="font-size:12px">${s ? esc(s.cls) : ''}${x.count > 1 ? ` · ${x.count} 次` : ''}</div></td>
+      <td class="r big">${esc(fmtVal(act, x.best))}</td></tr>`;
+  }).join('') : `<tr><td class="muted">${S.lbScope === 'today' ? '今天還沒有紀錄' : '還沒有紀錄'}</td></tr>`;
+  $('#awardBtn').disabled = !rows.length;
+}
+function renderActLog(){
+  const act = curAct(); if (!act) return;
+  const recs = act.records.slice().sort((a, b) => b.t - a.t).slice(0, 30);
+  $('#actLog').innerHTML = recs.length ? recs.map(r => `<li><span class="when">${fmtTime(r.t)}</span><span class="who"><b>${esc(stuName(r.sid, r.n))}</b></span><span class="d pos">${esc(fmtVal(act, r.v))}</span><button class="rec-cancel" data-del-rec="${esc(r.k)}">刪除</button></li>`).join('')
+    : '<li style="display:block"><span class="none">還沒有紀錄</span></li>';
+}
+
+/* ---------- events ---------- */
+function openActEdit(sid){
+  S.actEdit = sid; renderParts();
+  const inp = document.getElementById('actIn-' + sid); if (inp) inp.focus();
+}
+function saveActEdit(sid){
+  const inp = document.getElementById('actIn-' + sid);
+  const v = inp ? parseFloat(inp.value) : NaN;
+  S.actEdit = null;
+  if (inp) inp.blur();
+  if (Number.isFinite(v) && v >= 0) addRecord(sid, v);
+  renderActs();
+}
+$('#view-acts').addEventListener('click', async e => {
+  const t = e.target;
+  const chip = t.closest('[data-act-id]'); if (chip){ selectAct(chip.dataset.actId); return; }
+  if (t.closest('[data-act-new]')){ S.actNewOpen = true; renderActs(); $('#actName').focus(); return; }
+  const pre = t.closest('[data-preset]');
+  if (pre){ const [n, u, b] = pre.dataset.preset.split('|'); $('#actName').value = n; $('#actUnit').value = u; $('#actBetter').value = b; $('#actName').focus(); return; }
+  if (t.closest('#actNewCancel')){ S.actNewOpen = false; renderActs(); return; }
+  if (t.closest('#swGo')){ swToggle(); return; }
+  if (t.closest('#swLap')){ swLap(''); return; }
+  if (t.closest('#swReset')){ swReset(false); renderActs(); return; }
+  const pf = t.closest('[data-pf]'); if (pf){ S.partFilter = pf.dataset.pf; renderActs(); return; }
+  const sc = t.closest('[data-scope]'); if (sc){ S.lbScope = sc.dataset.scope; renderLeaderboard(); return; }
+  const sv = t.closest('[data-save]'); if (sv){ saveActEdit(sv.dataset.save); return; }
+  const pb = t.closest('.part-btn');
+  if (pb){
+    const sid = pb.dataset.sid, act = curAct(); if (!act) return;
+    if (isTimed(act) && (T.running || swElapsed() > 0)){
+      if (T.done.has(sid)){ showToast(`${stuName(sid)} 這一輪已經記過了（要改請到「最近紀錄」刪除）`); return; }
+      swLap(sid); return;
+    }
+    openActEdit(sid); return;
+  }
+  const dr = t.closest('[data-del-rec]'); if (dr){ const act = curAct(); if (act) removeRecord(act.id, dr.dataset.delRec); return; }
+  if (t.closest('#awardBtn')){ awardByRank(); return; }
+  if (t.closest('#actRename')){ renameAct(); return; }
+  if (t.closest('#actDelete')){ deleteAct(); return; }
+});
+$('#view-acts').addEventListener('change', e => {
+  const sel = e.target.closest('select[data-lap]');
+  if (sel && sel.value){
+    const lap = T.laps.find(l => l.i === Number(sel.dataset.lap));
+    if (lap && !lap.sid){ lap.sid = sel.value; lap.k = addRecord(sel.value, Math.floor(lap.total / 10) / 100, true) || ''; }
+    renderLaps(); renderParts(); renderActs();
+  }
+});
+$('#view-acts').addEventListener('keydown', e => {
+  if (e.target.matches('.part-edit input')){
+    if (e.key === 'Enter' && !e.isComposing){ e.preventDefault(); saveActEdit(e.target.dataset.sid); }
+    else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); S.actEdit = null; renderActs(); }
+  }
+});
+$('#view-acts').addEventListener('focusout', () => setTimeout(flushDeferred, 0));
+$('#actNew').addEventListener('submit', e => {
+  e.preventDefault();
+  const name = $('#actName').value.trim().slice(0, 20); if (!name){ $('#actName').focus(); return; }
+  swReset(true);
+  createAct(name, $('#actUnit').value, $('#actBetter').value);
+  $('#actName').value = ''; S.actNewOpen = false; S.actEdit = null;
+  renderActs();
+});
+document.addEventListener('keydown', e => {
+  if (S.tab !== 'acts' || S.sheetId || !$('#confirm').hidden || e.metaKey || e.ctrlKey || e.altKey) return;
+  const tg = e.target;
+  if (tg && tg.closest && tg.closest('input, textarea, select, [contenteditable="true"]')) return;
+  const act = curAct(); if (!act || !isTimed(act)) return;
+  const onButton = !!(tg && tg.closest && tg.closest('button'));
+  if ((e.code === 'Space' || e.key === ' ') && !onButton){ e.preventDefault(); swToggle(); }
+  else if (e.key === 'l' || e.key === 'L'){ e.preventDefault(); swLap(''); }
+});
+async function awardByRank(){
+  const act = curAct(); if (!act) return;
+  const rows = leaderboard(act, S.lbScope).filter(x => x.rank <= 3 && S.students.has(x.sid));
+  if (!rows.length) return;
+  const tiers = { 1: 3, 2: 2, 3: 1 };
+  const desc = rows.map(x => `第${x.rank}名 ${stuName(x.sid)} +${tiers[x.rank]}`).join('、');
+  if (!(await confirmBox(`依「${act.name}」${S.lbScope === 'today' ? '今天' : ''}名次加分？`, desc, '加分'))) return;
+  const undos = [];
+  [1, 2, 3].forEach(rk => {
+    const ids = rows.filter(x => x.rank === rk).map(x => x.sid);
+    if (ids.length) undos.push(addPoints(ids, tiers[rk], `${act.name} 第${rk}名`));
+  });
+  showToast(`已依名次加分（${rows.length} 人）`, () => undos.forEach(u => u()));
+}
+async function renameAct(){
+  const act = curAct(); if (!act) return;
+  S.actNewOpen = false;
+  const host = $('#actRename');
+  const inp = document.createElement('input');
+  inp.className = 'in'; inp.value = act.name; inp.maxLength = 20; inp.style.maxWidth = '14em'; inp.setAttribute('aria-label', '新的項目名稱');
+  host.replaceWith(inp); inp.focus(); inp.select();
+  const done = save => {
+    const v = inp.value.trim().slice(0, 20);
+    inp.replaceWith(host);
+    if (save && v && v !== act.name) write(actPath(act.id), 'update', { name: v });
+    renderActs();
+  };
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); done(true); } else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); done(false); } });
+  inp.addEventListener('blur', () => { if (inp.isConnected) done(true); }, { once: true });
+}
+async function deleteAct(){
+  const act = curAct(); if (!act) return;
+  if (!(await confirmBox(`刪除「${act.name}」？`, `這個項目和裡面 ${act.records.length} 筆紀錄都會刪除，學生的積分不受影響。`, '刪除'))) return;
+  const data = { name: act.name, unit: act.unit, better: act.better, ord: act.ord, created: act.created, records: act.records };
+  const path = actPath(act.id);
+  swReset(true); S.actId = null;
+  write(path, 'delete', null);
+  showToast(`已刪除項目「${act.name}」`, () => write(path, 'set', data));
+  renderActs();
+}
+
 /* ---------- boot ---------- */
 (async function boot(){
-  try { const t = localStorage.getItem(LS_KEY + '-tab'); if (t === 'rank' || t === 'roster') setTab(t); } catch (e) {}
+  try { const t = localStorage.getItem(LS_KEY + '-tab'); if (t === 'rank' || t === 'roster' || t === 'acts') setTab(t); } catch (e) {}
   const fromHash = decodeURIComponent(location.hash.slice(1));
   let saved = ''; try { saved = localStorage.getItem(LS_KEY + '-club') || ''; } catch (e) {}
   const startClub = /^[A-Za-z0-9_-]{1,30}$/.test(fromHash) ? fromHash : (/^[A-Za-z0-9_-]{1,30}$/.test(saved) ? saved : 'main');
@@ -1464,7 +2070,7 @@ window.addEventListener('hashchange', () => { const h = decodeURIComponent(locat
   derive(); applyClubUI();
   render();
   const cfg = window.FIREBASE_CONFIG, opts = window.APP_OPTIONS || {};
-  const goLocal = msg => { S.mode = 'local'; S.club = 'main'; loadLocal(); S.ready = true; derive(); applyClubUI(); showBanner(msg); syncUI(); scheduleRender(); };
+  const goLocal = msg => { S.mode = 'local'; S.club = 'main'; loadLocal(); S.ready = true; S.actsReady = true; derive(); applyClubUI(); showBanner(msg); syncUI(); scheduleRender(); };
   if (!configReady(cfg)){
     goLocal('<div><b>還沒連上 Firebase。</b>請照說明把 Firebase 設定貼進 <code>firebase-config.js</code>。在那之前，這裡的資料只會存在這台裝置。</div>');
     return;
